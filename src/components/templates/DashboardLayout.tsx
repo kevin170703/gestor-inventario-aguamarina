@@ -115,9 +115,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           >
             <IconMenu2 size={24} />
           </button>
-          <h2 className="text-xl font-semibold text-gray-800">
-            Panel de Control
-          </h2>
         </header>
 
         {/* Aquí va el contenido de las páginas hijas */}

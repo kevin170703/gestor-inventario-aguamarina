@@ -62,44 +62,44 @@ const InventoryView: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="w-full flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-800">
           Inventario de Productos
         </h2>
-      </div>
 
-      <div className="w-full flex items-center justify-end space-x-4">
-        <div className="relative w-full max-w-[300px]">
-          <Input
-            type="text"
-            placeholder="Buscar por nombre..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
-          <IconSearch
-            size={20}
-            className="absolute left-3 top-1/2 -translate-y-1/2"
-          />
+        <div className="w-max flex-grow flex items-center justify-end space-x-4">
+          <div className="relative w-full max-w-[300px]">
+            <Input
+              type="text"
+              placeholder="Buscar por nombre..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+            <IconSearch
+              size={20}
+              className="absolute left-3 top-1/2 -translate-y-1/2"
+            />
+          </div>
+
+          <div className="max-w-[200px]">
+            <Select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+            >
+              <option value="all">Todas las categorías</option>
+              {categories.map((cat: Category) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </Select>
+          </div>
+
+          <Button onClick={handleAddProduct} icon={<IconPlus size={16} />}>
+            Crear Producto
+          </Button>
         </div>
-
-        <div className="max-w-[200px]">
-          <Select
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-          >
-            <option value="all">Todas las categorías</option>
-            {categories.map((cat: Category) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
-            ))}
-          </Select>
-        </div>
-
-        <Button onClick={handleAddProduct} icon={<IconPlus size={16} />}>
-          Crear Producto
-        </Button>
       </div>
 
       <ProductTable

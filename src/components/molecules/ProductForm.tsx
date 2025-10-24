@@ -6,6 +6,7 @@ import Button from "../atoms/Button";
 import Input from "../atoms/Input";
 import Select from "../atoms/Select";
 import { IconPlus, IconTrash, IconX } from "@tabler/icons-react";
+import UploadImage from "../atoms/UploadImage";
 
 interface ProductFormProps {
   isOpen: boolean;
@@ -71,10 +72,7 @@ const SizeStockManager: React.FC<{
           {selectedSizes.map((ps, sIndex) => {
             const size = availableSizes.find((s) => s.id === ps.sizeId);
             return size ? (
-              <div
-                key={size.id}
-                className="flex items-center space-x-2 p-2 bg-white rounded-md border"
-              >
+              <div key={size.id} className="flex items-center py-2 bg-white ">
                 <span className="font-semibold w-12">{size.name}:</span>
                 <Input
                   type="number"
@@ -124,10 +122,9 @@ const ProductForm: React.FC<ProductFormProps> = ({
   };
 
   const handleImageChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
+    file: File | null,
     variantIndex: number | null = null
   ) => {
-    const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -239,14 +236,14 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-50 z-40"
+      className="fixed inset-0 bg-black/10 bg-opacity-50 z-40"
       onClick={onClose}
     >
       <div
-        className="fixed top-0 right-0 h-full w-full max-w-2xl bg-white shadow-xl flex flex-col"
+        className="fixed top-0 right-0 h-full w-full max-w-2xl bg-gray-100 shadow-xl flex flex-col border-l border-gray-200"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex justify-between items-center p-4 border-b bg-gray-50">
+        <div className="flex justify-between items-center p-4 border-b border-gray-200">
           <h2 className="text-xl font-semibold">
             {product ? "Editar Producto" : "Crear Nuevo Producto"}
           </h2>
@@ -260,11 +257,11 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
         <form
           onSubmit={handleSubmit}
-          className="flex-1 overflow-y-auto p-6 space-y-6"
+          className="flex-1 overflow-y-auto px-6 pt-6 space-y-6"
         >
           {/* Main Product Info */}
-          <div className="space-y-4 p-4 border rounded-md">
-            <h3 className="text-lg font-medium border-b pb-2">
+          <div className="space-y-6 p-4  rounded-3xl border border-gray-200 bg-white">
+            <h3 className="text-lg font-medium border-b border-gray-200 pb-2">
               Producto Principal
             </h3>
             <Input
@@ -323,24 +320,28 @@ const ProductForm: React.FC<ProductFormProps> = ({
               </div>
             )}
             <div className="flex items-center space-x-4">
-              <img
-                src={formData.imageUrl}
-                alt="Product preview"
-                className="w-20 h-20 rounded-md object-cover bg-gray-100"
-              />
               <div className="flex-grow">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Imagen Principal
                 </label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleImageChange(e)}
-                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100"
-                />
+
+                <div className="size-52">
+                  <UploadImage
+                    value={
+                      formData.imageUrl === null
+                        ? null // 👈 si es File, no hay string todavía
+                        : formData.imageUrl || null // 👈 si es string, lo pasamos
+                    }
+                    onChange={(image) => {
+                      // handleChange("coverImage", image?.preview ?? null);
+                      handleImageChange(image?.file ?? null); // opcional: guardar el file real
+                    }}
+                  />
+                </div>
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 ">
               <Input
                 label="Código de Barras"
                 name="barcode"
@@ -381,41 +382,43 @@ const ProductForm: React.FC<ProductFormProps> = ({
             {(formData.variants || []).map((variant, vIndex) => (
               <div
                 key={variant.id}
-                className="p-4 border rounded-md bg-gray-50 space-y-4 relative"
+                className="p-6 border border-gray-200 rounded-3xl bg-white space-y-4 relative"
               >
                 <button
                   type="button"
                   onClick={() => handleRemoveVariant(vIndex)}
-                  className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+                  className="absolute top-4 right-4 text-red-500 hover:text-red-700"
                 >
                   <IconTrash size={18} />
                 </button>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Input
-                    label="Nombre Variante (ej. Color)"
-                    name="name"
-                    value={variant.name}
-                    onChange={(e) => handleVariantChange(vIndex, e)}
-                  />
-                  <div className="flex items-center space-x-4">
-                    <img
-                      src={variant.imageUrl}
-                      alt="Variant preview"
-                      className="w-16 h-16 rounded-md object-cover bg-gray-100"
-                    />
-                    <div className="flex-grow">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Imagen Variante
-                      </label>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => handleImageChange(e, vIndex)}
-                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100"
+
+                <Input
+                  label="Nombre Variante (ej. Color)"
+                  name="name"
+                  value={variant.name}
+                  onChange={(e) => handleVariantChange(vIndex, e)}
+                />
+                <div className="flex items-center space-x-4">
+                  <div className="flex-grow">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Imagen Variante
+                    </label>
+                    <div className="size-52">
+                      <UploadImage
+                        value={
+                          variant.imageUrl === ""
+                            ? null // 👈 si es File, no hay string todavía
+                            : variant.imageUrl || null // 👈 si es string, lo pasamos
+                        }
+                        onChange={(image) => {
+                          // handleChange("coverImage", image?.preview ?? null);
+                          handleImageChange(image?.file ?? null, vIndex); // opcional: guardar el file real
+                        }}
                       />
                     </div>
                   </div>
                 </div>
+
                 <SizeStockManager
                   title="Tallas y Stock (Variante)"
                   availableSizes={sizes}
@@ -437,7 +440,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
             </Button>
           </div>
 
-          <div className="flex justify-end p-4 bg-gray-50 -mx-6 -mb-6 mt-6 border-t sticky bottom-0">
+          <div className="flex justify-end p-4 -mx-6 mt-6 border-t border-gray-200 bg-white sticky bottom-0">
             <Button
               type="button"
               variant="secondary"
