@@ -17,21 +17,26 @@ export interface ProductSize {
 export interface Variant {
   id: string;
   name: string; // e.g., "Red", "Blue"
-  imageUrl: string;
+  mainImage: string;
   sizes: ProductSize[];
+  isActive: boolean;
+  stock: number;
 }
 
 // The main product has all the core details
 export interface Product {
   id: string;
   name: string;
-  categoryId: string;
+  category: string;
   barcode: string;
   costPrice: number;
   salePrice: number;
-  imageUrl: string;
+  mainImage: string;
   sizes: ProductSize[]; // Sizes for the main product
   variants?: Variant[]; // Optional, simplified variants
+  isActive: boolean;
+  description: string;
+  stock: number;
 }
 
 export interface CartItem {

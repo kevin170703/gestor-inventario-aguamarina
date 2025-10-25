@@ -21,18 +21,23 @@ interface ProductFormProps {
 
 const emptyVariant: Omit<Variant, "id"> = {
   name: "",
-  imageUrl: "https://via.placeholder.com/400",
+  mainImage: "",
   sizes: [],
+  stock: 0,
+  isActive: true,
 };
 const emptyProduct: Omit<Product, "id"> = {
   name: "",
-  categoryId: "",
+  category: "",
   barcode: "",
   costPrice: 0,
   salePrice: 0,
-  imageUrl: "https://via.placeholder.com/400",
+  mainImage: "",
   sizes: [],
   variants: [],
+  description: "",
+  isActive: true,
+  stock: 0,
 };
 
 // Reusable component for managing sizes and stock
@@ -121,6 +126,8 @@ const ProductForm: React.FC<ProductFormProps> = ({
     }));
   };
 
+  console.log(formData, "producto");
+
   const handleImageChange = (
     file: File | null,
     variantIndex: number | null = null
@@ -128,13 +135,13 @@ const ProductForm: React.FC<ProductFormProps> = ({
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        const imageUrl = reader.result as string;
+        const mainImage = reader.result as string;
         if (variantIndex !== null) {
           const newVariants = [...(formData.variants || [])];
-          newVariants[variantIndex].imageUrl = imageUrl;
+          newVariants[variantIndex].mainImage = mainImage;
           setFormData((prev) => ({ ...prev, variants: newVariants }));
         } else {
-          setFormData((prev) => ({ ...prev, imageUrl }));
+          setFormData((prev) => ({ ...prev, mainImage }));
         }
       };
       reader.readAsDataURL(file);
@@ -264,13 +271,24 @@ const ProductForm: React.FC<ProductFormProps> = ({
             <h3 className="text-lg font-medium border-b border-gray-200 pb-2">
               Producto Principal
             </h3>
-            <Input
-              label="Nombre del Producto"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
+              <Input
+                label="Nombre del Producto"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+              />
+
+              <Input
+                label="Stock"
+                name="stock"
+                type="number"
+                step="1"
+                value={formData.stock}
+                onChange={handleChange}
+              />
+            </div>
             {isAddingCategory ? (
               <div className="flex items-end space-x-2">
                 <Input
@@ -295,7 +313,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                   <Select
                     label="Categoría"
                     name="categoryId"
-                    value={formData.categoryId}
+                    value={formData.category}
                     onChange={handleChange}
                     required
                   >
@@ -328,9 +346,9 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 <div className="size-52">
                   <UploadImage
                     value={
-                      formData.imageUrl === null
+                      formData.mainImage === ""
                         ? null // 👈 si es File, no hay string todavía
-                        : formData.imageUrl || null // 👈 si es string, lo pasamos
+                        : formData.mainImage || null // 👈 si es string, lo pasamos
                     }
                     onChange={(image) => {
                       // handleChange("coverImage", image?.preview ?? null);
@@ -392,12 +410,24 @@ const ProductForm: React.FC<ProductFormProps> = ({
                   <IconTrash size={18} />
                 </button>
 
-                <Input
-                  label="Nombre Variante (ej. Color)"
-                  name="name"
-                  value={variant.name}
-                  onChange={(e) => handleVariantChange(vIndex, e)}
-                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
+                  <Input
+                    label="Nombre Variante (ej. Color)"
+                    name="name"
+                    value={variant.name}
+                    onChange={(e) => handleVariantChange(vIndex, e)}
+                  />
+
+                  <Input
+                    label="Stock"
+                    name="stock"
+                    type="number"
+                    step="1"
+                    value={variant.stock}
+                    onChange={(e) => handleVariantChange(vIndex, e)}
+                  />
+                </div>
+
                 <div className="flex items-center space-x-4">
                   <div className="flex-grow">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -406,9 +436,9 @@ const ProductForm: React.FC<ProductFormProps> = ({
                     <div className="size-52">
                       <UploadImage
                         value={
-                          variant.imageUrl === ""
+                          variant.mainImage === ""
                             ? null // 👈 si es File, no hay string todavía
-                            : variant.imageUrl || null // 👈 si es string, lo pasamos
+                            : variant.mainImage || null // 👈 si es string, lo pasamos
                         }
                         onChange={(image) => {
                           // handleChange("coverImage", image?.preview ?? null);

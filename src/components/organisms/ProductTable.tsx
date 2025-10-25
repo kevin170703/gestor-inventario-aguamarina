@@ -57,22 +57,22 @@ const ProductTable: React.FC<ProductTableProps> = ({
             <div className="bg-white text-black/60 hover:bg-gray-50 flex justify-between items-center py-4 gap-2  border-b border-b-gray-200 text-start text-sm px-4">
               <div className="flex justify-start items-center w-[25%]">
                 <img
-                  src={product.imageUrl}
+                  src={product.mainImage}
                   alt={product.name}
                   className="w-10 h-10 rounded-md object-cover mr-3 border border-gray-200"
                 />
                 <p className="text-black">{product.name}</p>
               </div>
 
-              <div className="w-[15%]">
-                {getCategoryName(product.categoryId)}
-              </div>
+              <div className="w-[15%]">{product.category}</div>
 
               <div className="w-[15%]">{product.variants?.length || 0}</div>
 
-              <div className="w-[15%] ">{getTotalStock(product)}</div>
+              <div className="w-[15%] ">{product.stock}</div>
 
-              <div className="w-[15%] ">${product.salePrice.toFixed(2)}</div>
+              <div className="w-[15%] ">
+                ${product.salePrice.toLocaleString("es-AR")}
+              </div>
 
               <div className="w-[15%]">
                 <Button
@@ -86,11 +86,9 @@ const ProductTable: React.FC<ProductTableProps> = ({
             </div>
           ))}
           {products.length === 0 && (
-            <tr>
-              <td colSpan={6} className="text-center py-10 text-gray-500">
-                No se encontraron productos.
-              </td>
-            </tr>
+            <div className="w-full text-center py-6 text-xl">
+              <p>No se encontraron productos.</p>
+            </div>
           )}
         </div>
       </div>

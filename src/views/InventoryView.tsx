@@ -1,40 +1,24 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import { IconPlus, IconSearch } from "@tabler/icons-react";
-import { Product, Category } from "@/types/types";
-import { useInventory } from "../hooks/useInventory";
+import { Product, Category, Size } from "@/types/types";
 import Button from "../components/atoms/Button";
 import Input from "../components/atoms/Input";
 import Select from "../components/atoms/Select";
 import ProductTable from "../components/organisms/ProductTable";
 import ProductForm from "../components/molecules/ProductForm";
+import api from "@/lib/axios";
 
 const InventoryView: React.FC = () => {
-  const {
-    products,
-    categories,
-    sizes,
-    addProduct,
-    updateProduct,
-    addCategory,
-    addSize,
-  } = useInventory();
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
-  const filteredProducts = useMemo(() => {
-    return products.filter((product) => {
-      const matchesSearch = product.name
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
-      const matchesCategory =
-        categoryFilter === "all" || product.categoryId === categoryFilter;
-      return matchesSearch && matchesCategory;
-    });
-  }, [products, searchTerm, categoryFilter]);
+  const [products, setProducts] = useState<Product[] | []>([]);
+  const [categories, setCategories] = useState<Category[] | []>([]);
+  const [sizes, setSizes] = useState<Size[] | []>([]);
 
   const handleAddProduct = () => {
     setEditingProduct(null);
@@ -59,6 +43,79 @@ const InventoryView: React.FC = () => {
     }
     handleFormClose();
   };
+
+  // Frontend anterior
+
+  const [page, setPage] = useState(1);
+
+  const [filters, setFilters] = useState({
+    statusProduct: "",
+    stock: "",
+    nameProduct: "",
+    price: "",
+  });
+
+  const [dataSearchProducts, setDataSearchProduct] = useState("");
+
+  async function getProducts(e?: React.FormEvent<HTMLFormElement> | null) {
+    if (e) e.preventDefault();
+    const { data } = await api.get(`new/products-admin/${page}`, {
+      params: {
+        filters,
+        dataSearchProducts,
+      },
+    });
+
+    console.log(data, "productos");
+
+    if (data.success) setProducts(data.products);
+  }
+
+  async function getCategories(e?: React.FormEvent<HTMLFormElement> | null) {
+    if (e) e.preventDefault();
+    const { data } = await api.get(`/categories`);
+
+    if (data.success) {
+      setCategories(data.categories);
+    }
+  }
+
+  async function getSizes(e?: React.FormEvent<HTMLFormElement> | null) {
+    if (e) e.preventDefault();
+    const { data } = await api.get(`/sizes`);
+
+    if (data.success) {
+      setSizes(data.sizes);
+    }
+  }
+
+  async function addCategory(name: string) {
+    const { data } = await api.post(`/category`, { name });
+
+    if (data.success) {
+      setCategories(data.categories);
+    }
+
+    return data.category;
+  }
+
+  async function addSize(name: string) {
+    const { data } = await api.post(`/size`, { name });
+
+    if (data.success) {
+      setSizes(data.sizes);
+    }
+
+    return data.category;
+  }
+
+  useEffect(() => {
+    getProducts();
+    getCategories();
+    getSizes();
+  }, [page, filters]);
+
+  console.log({ sizes, categories, products });
 
   return (
     <div className="space-y-6">
@@ -103,7 +160,7 @@ const InventoryView: React.FC = () => {
       </div>
 
       <ProductTable
-        products={filteredProducts}
+        products={products}
         onEdit={handleEditProduct}
         categories={categories}
         sizes={sizes}
