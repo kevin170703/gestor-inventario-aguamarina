@@ -36,12 +36,7 @@ const InventoryView: React.FC = () => {
   };
 
   const handleFormSave = (product: Product) => {
-    if (editingProduct) {
-      updateProduct(product);
-    } else {
-      addProduct({ ...product, id: `prod-${Date.now()}` });
-    }
-    handleFormClose();
+    console.log(product, "el producto a crear");
   };
 
   // Frontend anterior
@@ -65,8 +60,6 @@ const InventoryView: React.FC = () => {
         dataSearchProducts,
       },
     });
-
-    console.log(data, "productos");
 
     if (data.success) setProducts(data.products);
   }
@@ -96,17 +89,17 @@ const InventoryView: React.FC = () => {
       setCategories(data.categories);
     }
 
-    return data.category;
+    return data.categories;
   }
 
   async function addSize(name: string) {
     const { data } = await api.post(`/size`, { name });
 
     if (data.success) {
-      setSizes(data.sizes);
+      setSizes(data.size);
     }
 
-    return data.category;
+    return data.size;
   }
 
   useEffect(() => {

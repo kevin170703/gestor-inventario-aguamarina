@@ -9,8 +9,8 @@ export interface Category {
 }
 
 export interface ProductSize {
-  sizeId: string;
   quantity: number;
+  name: string;
 }
 
 // A variant only contains properties that differ from the main product
