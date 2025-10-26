@@ -9,9 +9,10 @@ interface UploadedImage {
 interface UploadImageProps {
   value?: string | null; // recibe imagen desde el padre
   onChange?: (image: UploadedImage | null) => void;
+  id: string;
 }
 
-export default function UploadImage({ value, onChange }: UploadImageProps) {
+export default function UploadImage({ value, onChange, id }: UploadImageProps) {
   const [image, setImage] = useState<UploadedImage | null>(
     value ? { file: {} as File, preview: value } : null
   );
@@ -63,12 +64,12 @@ export default function UploadImage({ value, onChange }: UploadImageProps) {
             </div>
             <div className="mt-4 flex text-sm text-gray-400">
               <label
-                htmlFor="file-upload"
+                htmlFor={`file-upload-${id}`}
                 className="relative cursor-pointer rounded-md font-semibold text-indigo-400 hover:text-indigo-300"
               >
                 <span>Subir imagen</span>
                 <input
-                  id="file-upload"
+                  id={`file-upload-${id}`}
                   type="file"
                   accept="image/*"
                   className="sr-only"

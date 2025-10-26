@@ -79,11 +79,13 @@ const ProductForm: React.FC<ProductFormProps> = ({
     file: File | null,
     variantIndex: number | null = null
   ) => {
+    console.log(variantIndex, "index variante");
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
         const mainImage = reader.result as string;
         if (variantIndex !== null) {
+          console.log("entro aca por imagen variante");
           const newVariants = [...(formData.variants || [])];
           newVariants[variantIndex].mainImage = mainImage;
           setFormData((prev) => ({ ...prev, variants: newVariants }));
@@ -312,6 +314,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
                 <div className="size-52">
                   <UploadImage
+                    id="mainImage"
                     value={
                       formData.mainImage === ""
                         ? null // 👈 si es File, no hay string todavía
@@ -481,6 +484,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                     </label>
                     <div className="size-52">
                       <UploadImage
+                        id={variant.id.toString()}
                         value={
                           variant.mainImage === ""
                             ? null // 👈 si es File, no hay string todavía
