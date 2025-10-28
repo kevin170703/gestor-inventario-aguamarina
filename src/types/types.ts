@@ -18,7 +18,7 @@ export interface Variant {
   id: string;
   name: string; // e.g., "Red", "Blue"
   mainImage: string;
-  sizes: ProductSize[];
+  ProductSizes: ProductSize[];
   isActive: boolean;
   stock: number;
 }
@@ -32,8 +32,8 @@ export interface Product {
   costPrice: number;
   salePrice: number;
   mainImage: string;
-  sizes: ProductSize[]; // Sizes for the main product
-  variants?: Variant[]; // Optional, simplified variants
+  ProductSizes: ProductSize[]; // Sizes for the main product
+  Variants?: Variant[]; // Optional, simplified variants
   isActive: boolean;
   description: string;
   stock: number;

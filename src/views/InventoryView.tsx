@@ -2,13 +2,15 @@
 
 import React, { useEffect, useState } from "react";
 import { IconPlus, IconSearch } from "@tabler/icons-react";
-import { Product, Category, Size } from "@/types/types";
+import { Product, Category, Size, Variant } from "@/types/types";
 import Button from "../components/atoms/Button";
 import Input from "../components/atoms/Input";
 import Select from "../components/atoms/Select";
 import ProductTable from "../components/organisms/ProductTable";
 import ProductForm from "../components/molecules/ProductForm";
 import api from "@/lib/axios";
+import axios from "axios";
+import { optimizeAndUploadImageWebP } from "@/lib/firebase";
 
 const InventoryView: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -35,8 +37,40 @@ const InventoryView: React.FC = () => {
     setEditingProduct(null);
   };
 
-  const handleFormSave = (product: Product) => {
-    console.log(product, "el producto a crear");
+  // 🔹 Función para subir una imagen base64 a Firebase vía API
+
+  const handleFormSave = async (product: Product) => {
+    console.log("🧩 Producto original:", product);
+
+    const updatedProduct = { ...product };
+
+    // Imagen principal
+    if (product.mainImage.startsWith("data:image")) {
+      updatedProduct.mainImage = await optimizeAndUploadImageWebP(
+        product.mainImage,
+        `${product.name}-main-${Date.now()}.jpg`
+      );
+    }
+
+    // Variantes
+    if (product.Variants?.length) {
+      updatedProduct.Variants = await Promise.all(
+        product.Variants.map(async (variant) => {
+          const updatedVariant = { ...variant };
+          if (variant.mainImage.startsWith("data:image")) {
+            updatedVariant.mainImage = await optimizeAndUploadImageWebP(
+              variant.mainImage,
+              `${product.name}-${variant.name}-${Date.now()}.jpg`
+            );
+          }
+          return updatedVariant;
+        })
+      );
+    }
+
+    // return updatedProduct;
+
+    await api.post("admin-product", updatedProduct);
   };
 
   // Frontend anterior
@@ -60,6 +94,8 @@ const InventoryView: React.FC = () => {
         dataSearchProducts,
       },
     });
+
+    console.log(data, "productos traidos");
 
     if (data.success) setProducts(data.products);
   }

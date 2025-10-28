@@ -23,7 +23,7 @@ interface ProductFormProps {
 const emptyVariant: Omit<Variant, "id"> = {
   name: "",
   mainImage: "",
-  sizes: [],
+  ProductSizes: [],
   stock: 0,
   isActive: true,
 };
@@ -34,8 +34,8 @@ const emptyProduct: Omit<Product, "id"> = {
   costPrice: 0,
   salePrice: 0,
   mainImage: "",
-  sizes: [],
-  variants: [],
+  ProductSizes: [],
+  Variants: [],
   description: "",
   isActive: true,
   stock: 0,
@@ -86,7 +86,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
         const mainImage = reader.result as string;
         if (variantIndex !== null) {
           console.log("entro aca por imagen variante");
-          const newVariants = [...(formData.variants || [])];
+          const newVariants = [...(formData.Variants || [])];
           newVariants[variantIndex].mainImage = mainImage;
           setFormData((prev) => ({ ...prev, variants: newVariants }));
         } else {
@@ -104,34 +104,36 @@ const ProductForm: React.FC<ProductFormProps> = ({
     const size = sizes.find((s) => s.name === value);
     if (!size) return;
 
-    const existSizeProduct = formData.sizes.find((s) => s.name === value);
+    const existSizeProduct = formData.ProductSizes.find(
+      (s) => s.name === value
+    );
     if (existSizeProduct) return;
 
     setFormData((prev) => ({
       ...formData,
-      sizes: [...prev.sizes, { name: size.name, quantity: 0 }],
+      sizes: [...prev.ProductSizes, { name: size.name, quantity: 1 }],
     }));
   };
 
   const handleChangeSizeQuantity = (name: string, quantity: string) => {
-    const size = formData.sizes.find((s) => s.name === name);
+    const size = formData.ProductSizes.find((s) => s.name === name);
     if (!size) return;
 
     setFormData((prev) => ({
       ...prev,
-      sizes: prev.sizes.map((s) =>
+      sizes: prev.ProductSizes.map((s) =>
         s.name === name ? { ...s, quantity: parseInt(quantity) } : s
       ),
     }));
   };
 
   const handleSizeDelete = (name: string) => {
-    const size = formData.sizes.find((s) => s.name === name);
+    const size = formData.ProductSizes.find((s) => s.name === name);
     if (!size) return;
 
     setFormData((prev) => ({
       ...prev,
-      sizes: prev.sizes.filter((s) => s.name !== name),
+      sizes: prev.ProductSizes.filter((s) => s.name !== name),
     }));
   };
 
@@ -141,24 +143,78 @@ const ProductForm: React.FC<ProductFormProps> = ({
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const { name, value } = e.target;
-    const newVariants = [...(formData.variants || [])];
+    const newVariants = [...(formData.Variants || [])];
     const key = name as keyof Variant;
     (newVariants[variantIndex] as any)[key] = value;
     setFormData((prev) => ({ ...prev, variants: newVariants }));
+  };
+
+  const handleChangeSizeVariant = (
+    e: React.ChangeEvent<HTMLSelectElement>,
+    id: string
+  ) => {
+    const { value } = e.target;
+
+    const size = sizes.find((s) => s.name === value);
+    if (!size) return;
+
+    const variant = formData.Variants?.find((s) => s.id === id);
+    if (!variant) return;
+
+    const existSizeProduct = variant.ProductSizes.find((s) => s.name === value);
+    if (existSizeProduct) return;
+
+    setFormData((prev) => ({
+      ...prev,
+      variants: prev.Variants?.map((v) =>
+        v.id === id
+          ? {
+              ...v,
+              sizes: [...v.ProductSizes, { name: size.name, quantity: 1 }],
+            }
+          : v
+      ),
+    }));
+  };
+
+  const handleChangeSizeQuantityVariant = (
+    name: string,
+    quantity: string,
+    id: string
+  ) => {
+    const variant = formData.Variants?.find((s) => s.id === id);
+    if (!variant) return;
+
+    const size = variant.ProductSizes.find((s) => s.name === name);
+    if (!size) return;
+
+    setFormData((prev) => ({
+      ...prev,
+      variants: prev.Variants?.map((v) =>
+        v.id === id
+          ? {
+              ...v,
+              sizes: v.ProductSizes.map((s) =>
+                s.name === name ? { ...s, quantity: parseInt(quantity) } : s
+              ),
+            }
+          : v
+      ),
+    }));
   };
 
   const handleAddVariant = () => {
     const newVariant = { ...emptyVariant, id: `var-${Date.now()}` };
     setFormData((prev) => ({
       ...prev,
-      variants: [...(prev.variants || []), newVariant],
+      variants: [...(prev.Variants || []), newVariant],
     }));
   };
 
   const handleRemoveVariant = (variantIndex: number) => {
     setFormData((prev) => ({
       ...prev,
-      variants: (prev.variants || []).filter((_, i) => i !== variantIndex),
+      variants: (prev.Variants || []).filter((_, i) => i !== variantIndex),
     }));
   };
 
@@ -181,7 +237,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
         setFormData((prev) => ({
           ...prev,
           sizes: [
-            ...prev.sizes,
+            ...prev.ProductSizes,
             { name: newSize.name, id: newSize.id, quantity: 0 },
           ],
         }));
@@ -198,7 +254,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
   if (!isOpen) return null;
 
-  console.log(formData, "producto crando");
+  console.log(formData, "FormData");
 
   return (
     <div
@@ -339,11 +395,12 @@ const ProductForm: React.FC<ProductFormProps> = ({
               <Input
                 label="Precio Costo"
                 name="costPrice"
-                type="number"
+                type="text"
                 step="0.01"
                 value={formData.costPrice}
                 onChange={handleChange}
               />
+
               <Input
                 label="Precio Venta"
                 name="salePrice"
@@ -379,13 +436,10 @@ const ProductForm: React.FC<ProductFormProps> = ({
                     <Select
                       label="Talles"
                       name="sizes"
-                      value={formData.category}
+                      // value={formData}
                       onChange={handleChangeSize}
-                      required
                     >
-                      <option value="" disabled>
-                        Seleccionar talle
-                      </option>
+                      <option value="">Seleccionar talle</option>
                       {sizes.map((size) => (
                         <option key={size.id} value={size.name}>
                           {size.name}
@@ -404,7 +458,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 </div>
 
                 <div className="flex flex-wrap justify-start items-center gap-4">
-                  {formData.sizes.map((size) => (
+                  {formData.ProductSizes.map((size) => (
                     <div
                       key={size.name}
                       className="flex justify-start items-center gap-2 relative"
@@ -446,7 +500,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
             <h3 className="text-lg font-medium border-b pb-2">
               Variantes (Opcional)
             </h3>
-            {(formData.variants || []).map((variant, vIndex) => (
+            {(formData.Variants || []).map((variant, vIndex) => (
               <div
                 key={variant.id}
                 className="p-6 border border-gray-200 rounded-3xl bg-white space-y-4 relative"
@@ -498,6 +552,96 @@ const ProductForm: React.FC<ProductFormProps> = ({
                     </div>
                   </div>
                 </div>
+
+                {isAddingSize ? (
+                  <div className="flex items-end space-x-2">
+                    <Input
+                      label="Nuevo talle"
+                      value={newSizeName}
+                      onChange={(e) => setNewSizeName(e.target.value)}
+                    />
+                    <Button type="button" onClick={handleAddNewSize}>
+                      Guardar
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={() => setIsAddingSize(false)}
+                    >
+                      Cancelar
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="flex items-end space-x-2">
+                      <div className="flex-grow">
+                        <Select
+                          label="Talles"
+                          name="sizes"
+                          // value={}
+                          onChange={(e) =>
+                            handleChangeSizeVariant(e, variant.id)
+                          }
+                        >
+                          <option value="">Seleccionar talle</option>
+                          {sizes.map((size) => (
+                            <option key={size.id} value={size.name}>
+                              {size.name}
+                            </option>
+                          ))}
+                        </Select>
+                      </div>
+
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => setIsAddingSize(true)}
+                        icon={<IconPlus size={16} />}
+                      >
+                        Nuevo
+                      </Button>
+                    </div>
+
+                    <div className="flex flex-wrap justify-start items-center gap-4">
+                      {variant.ProductSizes.map((size) => (
+                        <div
+                          key={size.name}
+                          className="flex justify-start items-center gap-2 relative"
+                        >
+                          <button
+                            className="rounded-full size-4 p-0.5 bg-red-400 text-white cursor-pointer absolute top-0 right-0"
+                            onClick={() => handleSizeDelete(size.name)}
+                          >
+                            <IconX className="size-full" />
+                          </button>
+
+                          <p className="font-medium">{size.name}:</p>
+                          <input
+                            value={size.quantity}
+                            onChange={(e) =>
+                              handleChangeSizeQuantityVariant(
+                                size.name,
+                                e.target.value,
+                                variant.id
+                              )
+                            }
+                            min={0}
+                            type="number"
+                            className="px-3 h-12 w-16 border bg-white border-gray-200 rounded-xl focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  // <Button
+                  //   type="button"
+                  //   variant="secondary"
+                  //   // onClick={() => setIsAddingCategory(true)}
+                  //   icon={<IconPlus size={16} />}
+                  // >
+                  //   Nueva
+                  // </Button>
+                )}
 
                 {/* <SizeStockManager
                   title="Tallas y Stock (Variante)"
