@@ -20,7 +20,6 @@ export interface Variant {
   mainImage: string;
   ProductSizes: ProductSize[];
   isActive: boolean;
-  stock: number;
 }
 
 // The main product has all the core details
@@ -36,7 +35,6 @@ export interface Product {
   Variants?: Variant[]; // Optional, simplified variants
   isActive: boolean;
   description: string;
-  stock: number;
 }
 
 export interface CartItem {

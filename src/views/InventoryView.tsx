@@ -40,37 +40,69 @@ const InventoryView: React.FC = () => {
   // 🔹 Función para subir una imagen base64 a Firebase vía API
 
   const handleFormSave = async (product: Product) => {
-    console.log("🧩 Producto original:", product);
+    if (product.id) {
+      const updatedProduct = { ...product };
 
-    const updatedProduct = { ...product };
+      // Imagen principal
+      if (product.mainImage.startsWith("data:image")) {
+        updatedProduct.mainImage = await optimizeAndUploadImageWebP(
+          product.mainImage,
+          `${product.name}-main-${Date.now()}.jpg`
+        );
+      }
 
-    // Imagen principal
-    if (product.mainImage.startsWith("data:image")) {
-      updatedProduct.mainImage = await optimizeAndUploadImageWebP(
-        product.mainImage,
-        `${product.name}-main-${Date.now()}.jpg`
-      );
+      // Variantes
+      if (product.Variants?.length) {
+        updatedProduct.Variants = await Promise.all(
+          product.Variants.map(async (variant) => {
+            const updatedVariant = { ...variant };
+            if (variant.mainImage.startsWith("data:image")) {
+              updatedVariant.mainImage = await optimizeAndUploadImageWebP(
+                variant.mainImage,
+                `${product.name}-${variant.name}-${Date.now()}.jpg`
+              );
+            }
+            return updatedVariant;
+          })
+        );
+      }
+
+      const { data } = await api.put("admin-edit-product", updatedProduct);
+
+      console.log("resultado", data);
+    } else {
+      const updatedProduct = { ...product };
+
+      // Imagen principal
+      if (product.mainImage.startsWith("data:image")) {
+        updatedProduct.mainImage = await optimizeAndUploadImageWebP(
+          product.mainImage,
+          `${product.name}-main-${Date.now()}.jpg`
+        );
+      }
+
+      // Variantes
+      if (product.Variants?.length) {
+        updatedProduct.Variants = await Promise.all(
+          product.Variants.map(async (variant) => {
+            const updatedVariant = { ...variant };
+            if (variant.mainImage.startsWith("data:image")) {
+              updatedVariant.mainImage = await optimizeAndUploadImageWebP(
+                variant.mainImage,
+                `${product.name}-${variant.name}-${Date.now()}.jpg`
+              );
+            }
+            return updatedVariant;
+          })
+        );
+      }
+
+      // return updatedProduct;
+
+      const { data } = await api.post("admin-product", updatedProduct);
+
+      console.log("resultado", data);
     }
-
-    // Variantes
-    if (product.Variants?.length) {
-      updatedProduct.Variants = await Promise.all(
-        product.Variants.map(async (variant) => {
-          const updatedVariant = { ...variant };
-          if (variant.mainImage.startsWith("data:image")) {
-            updatedVariant.mainImage = await optimizeAndUploadImageWebP(
-              variant.mainImage,
-              `${product.name}-${variant.name}-${Date.now()}.jpg`
-            );
-          }
-          return updatedVariant;
-        })
-      );
-    }
-
-    // return updatedProduct;
-
-    await api.post("admin-product", updatedProduct);
   };
 
   // Frontend anterior

@@ -24,7 +24,6 @@ const emptyVariant: Omit<Variant, "id"> = {
   name: "",
   mainImage: "",
   ProductSizes: [],
-  stock: 0,
   isActive: true,
 };
 const emptyProduct: Omit<Product, "id"> = {
@@ -38,7 +37,6 @@ const emptyProduct: Omit<Product, "id"> = {
   Variants: [],
   description: "",
   isActive: true,
-  stock: 0,
 };
 
 const ProductForm: React.FC<ProductFormProps> = ({
@@ -104,14 +102,17 @@ const ProductForm: React.FC<ProductFormProps> = ({
     const size = sizes.find((s) => s.name === value);
     if (!size) return;
 
+    console.log("pase primero");
+
     const existSizeProduct = formData.ProductSizes.find(
       (s) => s.name === value
     );
     if (existSizeProduct) return;
+    console.log("pase segundo");
 
     setFormData((prev) => ({
       ...formData,
-      sizes: [...prev.ProductSizes, { name: size.name, quantity: 1 }],
+      ProductSizes: [...prev.ProductSizes, { name: size.name, quantity: 1 }],
     }));
   };
 
@@ -121,7 +122,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
     setFormData((prev) => ({
       ...prev,
-      sizes: prev.ProductSizes.map((s) =>
+      ProductSizes: prev.ProductSizes.map((s) =>
         s.name === name ? { ...s, quantity: parseInt(quantity) } : s
       ),
     }));
@@ -133,7 +134,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
     setFormData((prev) => ({
       ...prev,
-      sizes: prev.ProductSizes.filter((s) => s.name !== name),
+      ProductSizes: prev.ProductSizes.filter((s) => s.name !== name),
     }));
   };
 
@@ -146,7 +147,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
     const newVariants = [...(formData.Variants || [])];
     const key = name as keyof Variant;
     (newVariants[variantIndex] as any)[key] = value;
-    setFormData((prev) => ({ ...prev, variants: newVariants }));
+    setFormData((prev) => ({ ...prev, Variants: newVariants }));
   };
 
   const handleChangeSizeVariant = (
@@ -166,11 +167,14 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
     setFormData((prev) => ({
       ...prev,
-      variants: prev.Variants?.map((v) =>
+      Variants: prev.Variants?.map((v) =>
         v.id === id
           ? {
               ...v,
-              sizes: [...v.ProductSizes, { name: size.name, quantity: 1 }],
+              ProductSizes: [
+                ...v.ProductSizes,
+                { name: size.name, quantity: 1 },
+              ],
             }
           : v
       ),
@@ -190,11 +194,11 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
     setFormData((prev) => ({
       ...prev,
-      variants: prev.Variants?.map((v) =>
+      Variants: prev.Variants?.map((v) =>
         v.id === id
           ? {
               ...v,
-              sizes: v.ProductSizes.map((s) =>
+              ProductSizes: v.ProductSizes.map((s) =>
                 s.name === name ? { ...s, quantity: parseInt(quantity) } : s
               ),
             }
@@ -207,7 +211,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
     const newVariant = { ...emptyVariant, id: `var-${Date.now()}` };
     setFormData((prev) => ({
       ...prev,
-      variants: [...(prev.Variants || []), newVariant],
+      Variants: [...(prev.Variants || []), newVariant],
     }));
   };
 
@@ -286,24 +290,14 @@ const ProductForm: React.FC<ProductFormProps> = ({
             <h3 className="text-lg font-medium border-b border-gray-200 pb-2">
               Producto Principal
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
-              <Input
-                label="Nombre del Producto"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-              />
 
-              <Input
-                label="Stock"
-                name="stock"
-                type="number"
-                step="1"
-                value={formData.stock}
-                onChange={handleChange}
-              />
-            </div>
+            <Input
+              label="Nombre del Producto"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+            />
 
             <TextArea
               label="Descripción"
@@ -513,23 +507,12 @@ const ProductForm: React.FC<ProductFormProps> = ({
                   <IconTrash size={18} />
                 </button>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
-                  <Input
-                    label="Nombre Variante (ej. Color)"
-                    name="name"
-                    value={variant.name}
-                    onChange={(e) => handleVariantChange(vIndex, e)}
-                  />
-
-                  <Input
-                    label="Stock"
-                    name="stock"
-                    type="number"
-                    step="1"
-                    value={variant.stock}
-                    onChange={(e) => handleVariantChange(vIndex, e)}
-                  />
-                </div>
+                <Input
+                  label="Nombre Variante (ej. Color)"
+                  name="name"
+                  value={variant.name}
+                  onChange={(e) => handleVariantChange(vIndex, e)}
+                />
 
                 <div className="flex items-center space-x-4">
                   <div className="flex-grow">
