@@ -1,23 +1,22 @@
 "use client";
 
-import React, { useState } from "react";
-import { useInventory } from "../hooks/useInventory";
+import React, { useEffect, useState } from "react";
 import { Category, Product, Variant, Size, CartItem } from "@/types/types";
 import POSGrid from "../components/organisms/POSGrid";
 import ShoppingCart from "../components/organisms/ShoppingCart";
-import VariantSelectionModal from "../components/molecules/VariantSelectionModal";
+import api from "@/lib/axios";
+import ProductSelectionModal from "../components/molecules/VariantSelectionModal";
 
 const POSView: React.FC = () => {
-  const { products, categories, sizes, findProduct, findSize } = useInventory();
   const [activeCategoryId, setActiveCategoryId] = useState<string>("all");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isVariantModalOpen, setIsVariantModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  const filteredProducts =
-    activeCategoryId === "all"
-      ? products
-      : products.filter((p) => p.categoryId === activeCategoryId);
+  // const filteredProducts =
+  //   activeCategoryId === "all"
+  //     ? products
+  //     : products.filter((p) => p.categoryId === activeCategoryId);
 
   const handleProductClick = (product: Product) => {
     // If product has no variants and only one size, add directly to cart? (Future optimization)
@@ -27,70 +26,63 @@ const POSView: React.FC = () => {
   };
 
   const handleAddToCart = (
-    productId: string,
-    variantId: string | null,
-    sizeId: string
+    products: { productId: string; size: string; quantity: number }[]
   ) => {
-    const product = findProduct(productId);
-    if (!product) return;
-
-    const size = findSize(sizeId);
-    if (!size) return;
-
-    let itemToAdd: {
-      variantId: string | null;
-      name: string;
-      imageUrl: string;
-    };
-
-    if (variantId) {
-      const variant = product.variants?.find((v) => v.id === variantId);
-      if (!variant) return;
-      itemToAdd = {
-        variantId: variant.id,
-        name: variant.name,
-        imageUrl: variant.imageUrl,
-      };
-    } else {
-      // It's the main product
-      itemToAdd = {
-        variantId: null,
-        name: "Estándar",
-        imageUrl: product.imageUrl,
-      };
-    }
-
-    const existingCartItemIndex = cart.findIndex(
-      (item) =>
-        item.productId === productId &&
-        item.variantId === itemToAdd.variantId &&
-        item.sizeId === sizeId
-    );
-
-    if (existingCartItemIndex > -1) {
-      const newCart = [...cart];
-      newCart[existingCartItemIndex].quantity++;
-      setCart(newCart);
-    } else {
-      const newItem: CartItem = {
-        id: `cart-${Date.now()}`,
-        productId,
-        variantId: itemToAdd.variantId,
-        sizeId,
-        quantity: 1,
-        unitPrice: product.salePrice, // Price is always from the main product
-        discount: 0,
-        productName: product.name,
-        variantName: itemToAdd.name,
-        sizeName: size.name,
-        imageUrl: itemToAdd.imageUrl,
-      };
-      setCart((prev) => [...prev, newItem]);
-    }
-
-    setIsVariantModalOpen(false);
-    setSelectedProduct(null);
+    console.log(products, "prodcuts");
   };
+
+  // Produccion
+
+  const [products, setProducts] = useState<Product[] | []>([]);
+  const [categories, setCategories] = useState<Category[] | []>([]);
+  const [sizes, setSizes] = useState<Size[] | []>([]);
+
+  const [page, setPage] = useState(1);
+
+  const [filters, setFilters] = useState({
+    statusProduct: "",
+    stock: "",
+    nameProduct: "",
+    price: "",
+  });
+
+  const [dataSearchProducts, setDataSearchProduct] = useState("");
+
+  async function getProducts(e?: React.FormEvent<HTMLFormElement> | null) {
+    if (e) e.preventDefault();
+    const { data } = await api.get(`new/products-admin/${page}`, {
+      params: {
+        filters,
+        dataSearchProducts,
+      },
+    });
+
+    if (data.success) setProducts(data.products);
+  }
+
+  async function getCategories(e?: React.FormEvent<HTMLFormElement> | null) {
+    if (e) e.preventDefault();
+    const { data } = await api.get(`/categories`);
+
+    if (data.success) {
+      setCategories(data.categories);
+    }
+  }
+
+  async function getSizes(e?: React.FormEvent<HTMLFormElement> | null) {
+    if (e) e.preventDefault();
+    const { data } = await api.get(`/sizes`);
+
+    if (data.success) {
+      setSizes(data.sizes);
+    }
+  }
+
+  useEffect(() => {
+    getProducts();
+    getCategories();
+    getSizes();
+  }, [page, filters]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-100px)]">
@@ -123,10 +115,7 @@ const POSView: React.FC = () => {
           </div>
         </div>
         <div className="flex-grow overflow-y-auto">
-          <POSGrid
-            products={filteredProducts}
-            onProductClick={handleProductClick}
-          />
+          <POSGrid products={products} onProductClick={handleProductClick} />
         </div>
       </div>
 
@@ -135,7 +124,7 @@ const POSView: React.FC = () => {
       </div>
 
       {selectedProduct && (
-        <VariantSelectionModal
+        <ProductSelectionModal
           isOpen={isVariantModalOpen}
           onClose={() => setIsVariantModalOpen(false)}
           product={selectedProduct}

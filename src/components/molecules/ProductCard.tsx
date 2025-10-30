@@ -14,15 +14,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
     >
       <div className="relative">
         <img
-          src={product.imageUrl}
+          src={product.mainImage}
           alt={product.name}
           className="w-full h-32 object-cover"
         />
-        {(product.variants?.length || 0) > 0 && (
-          <div className="absolute top-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded-full">
-            {product.variants?.length} Variantes
-          </div>
-        )}
       </div>
       <div className="p-3">
         <h4 className="text-sm font-semibold text-gray-800 truncate group-hover:text-teal-600">

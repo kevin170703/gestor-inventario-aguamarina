@@ -1,146 +1,160 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
-import { Product, Size, Variant, ProductSize } from "@/types/types";
+import React, { useState, useEffect } from "react";
+import { Product, Size } from "@/types/types";
 import Modal from "../atoms/Modal";
 import Button from "../atoms/Button";
 
-interface VariantSelectionModalProps {
+interface ProductSelectionModalProps {
   isOpen: boolean;
   onClose: () => void;
   product: Product;
   sizes: Size[];
   onAddToCart: (
-    productId: string,
-    variantId: string | null,
-    sizeId: string
+    items: { productId: string; size: string; quantity: number }[]
   ) => void;
 }
 
-const VariantSelectionModal: React.FC<VariantSelectionModalProps> = ({
+const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
   isOpen,
   onClose,
   product,
   sizes,
   onAddToCart,
 }) => {
-  // `null` represents the main product
-  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(
-    null
-  );
-  const [selectedSizeId, setSelectedSizeId] = useState<string>("");
-
-  const selectableOptions = useMemo(() => {
-    const mainProductOption = {
-      id: null,
-      name: "Estándar",
-      imageUrl: product.imageUrl,
-      sizes: product.sizes,
-    };
-    const variantOptions = (product.variants || []).map((v) => ({
-      id: v.id,
-      name: v.name,
-      imageUrl: v.imageUrl,
-      sizes: v.sizes,
-    }));
-    return [mainProductOption, ...variantOptions];
-  }, [product]);
+  const [selectedSizes, setSelectedSizes] = useState<
+    { name: string; quantity: number; maxQuantity: number }[]
+  >([]);
 
   useEffect(() => {
-    if (isOpen) {
-      setSelectedVariantId(null); // Default to main product
-      setSelectedSizeId("");
-    }
+    if (isOpen) setSelectedSizes([]);
   }, [isOpen, product]);
 
-  const selectedOption = selectableOptions.find(
-    (opt) => opt.id === selectedVariantId
-  );
+  const toggleSizeSelection = (size: string) => {
+    const productSize = product.ProductSizes.find((ps) => ps.name === size);
+    const maxQuantity = productSize ? productSize.quantity : 1;
 
-  const handleAddToCartClick = () => {
-    if (selectedSizeId) {
-      onAddToCart(product.id, selectedVariantId, selectedSizeId);
-    }
+    setSelectedSizes((prev) => {
+      const exists = prev.find((s) => s.name === size);
+      if (exists) {
+        // Si ya está seleccionado, quitarlo
+        return prev.filter((s) => s.name !== size);
+      }
+      // Si no está, agregarlo con cantidad 1
+      return [...prev, { name: size, quantity: 1, maxQuantity }];
+    });
   };
 
-  const handleVariantChange = (variantId: string | null) => {
-    setSelectedVariantId(variantId);
-    setSelectedSizeId(""); // Reset size selection when variant changes
+  const handleQuantityChange = (size: string, newQuantity: number) => {
+    setSelectedSizes((prev) =>
+      prev.map((s) =>
+        s.name === size
+          ? {
+              ...s,
+              quantity: Math.min(
+                Math.max(1, newQuantity),
+                s.maxQuantity // no supera el stock disponible
+              ),
+            }
+          : s
+      )
+    );
+  };
+
+  const handleAddToCartClick = () => {
+    const cartItems = selectedSizes.map((s) => ({
+      productId: product.id,
+      size: s.name,
+      quantity: s.quantity,
+    }));
+    onAddToCart(cartItems);
+    onClose();
   };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={product.name}>
       <div className="space-y-4">
-        {selectedOption && (
-          <div className="flex justify-center mb-4">
-            <img
-              src={selectedOption.imageUrl}
-              alt={selectedOption.name}
-              className="w-32 h-32 object-cover rounded-md border"
-            />
-          </div>
-        )}
-
-        {selectableOptions.length > 1 && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Variante
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {selectableOptions.map((option) => (
-                <button
-                  key={option.id || "main"}
-                  onClick={() => handleVariantChange(option.id)}
-                  className={`px-3 py-1.5 rounded-md text-sm border ${
-                    selectedVariantId === option.id
-                      ? "bg-teal-600 text-white border-teal-600"
-                      : "bg-white hover:bg-gray-100"
-                  }`}
-                >
-                  {option.name}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {selectedOption && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Talla
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {selectedOption.sizes.map((productSize) => {
-                const size = sizes.find((s) => s.id === productSize.sizeId);
-                if (!size) return null;
-                const isDisabled = productSize.quantity <= 0;
-                return (
-                  <button
-                    key={size.id}
-                    onClick={() => setSelectedSizeId(size.id)}
-                    disabled={isDisabled}
-                    className={`px-3 py-1.5 rounded-md text-sm border ${
-                      selectedSizeId === size.id
-                        ? "bg-teal-600 text-white border-teal-600"
-                        : "bg-white hover:bg-gray-100"
-                    } ${isDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
-                  >
-                    {size.name}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        <div className="pt-4 flex justify-end">
-          <Button onClick={handleAddToCartClick} disabled={!selectedSizeId}>
-            Añadir al Carrito
-          </Button>
+        {/* Imagen del producto */}
+        <div className="flex justify-center mb-4">
+          <img
+            src={product.mainImage}
+            alt={product.name}
+            className="w-32 h-32 object-cover rounded-md border"
+          />
         </div>
+
+        {/* Talles */}
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Talles disponibles
+        </label>
+        <div className="flex flex-wrap gap-2">
+          {product.ProductSizes.map((productSize) => {
+            const size = sizes.find((s) => s.name === productSize.name);
+            if (!size) return null;
+            const isDisabled = productSize.quantity <= 0;
+            const isSelected = selectedSizes.some((s) => s.name === size.name);
+
+            return (
+              <button
+                key={size.id}
+                onClick={() => toggleSizeSelection(size.name)}
+                disabled={isDisabled}
+                className={`px-3 py-1.5 rounded-md text-sm border transition-colors ${
+                  isSelected
+                    ? "bg-teal-600 text-white border-teal-600"
+                    : "bg-white hover:bg-gray-100"
+                } ${isDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+              >
+                {size.name}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Lista de talles seleccionados */}
+        {selectedSizes.length > 0 && (
+          <div className="mt-6 border-t pt-4 space-y-2">
+            <h4 className="text-sm font-semibold text-gray-700">
+              Talles seleccionados
+            </h4>
+            {selectedSizes.map((s) => (
+              <div
+                key={s.name}
+                className="flex items-center justify-between border p-2 rounded-md"
+              >
+                <span>{s.name}</span>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    value={s.quantity}
+                    min={1}
+                    max={s.maxQuantity}
+                    onChange={(e) =>
+                      handleQuantityChange(s.name, Number(e.target.value))
+                    }
+                    className="w-16 border rounded-md text-center"
+                  />
+                  <span className="text-xs text-gray-500">
+                    / {s.maxQuantity} disp.
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Botón de agregar */}
+      <div className="pt-4 flex justify-end">
+        <Button
+          onClick={handleAddToCartClick}
+          disabled={selectedSizes.length === 0}
+        >
+          Añadir al Carrito
+        </Button>
       </div>
     </Modal>
   );
 };
 
-export default VariantSelectionModal;
+export default ProductSelectionModal;
