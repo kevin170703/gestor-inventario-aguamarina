@@ -10,7 +10,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Molokaih template web",
+  title: "Agumarina - gestor inventario",
   description: "",
 };
 

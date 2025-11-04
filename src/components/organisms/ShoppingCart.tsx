@@ -1,8 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { CartItem } from "@/types/types";
-import { IconShoppingCart, IconTrash } from "@tabler/icons-react";
+import { IconShoppingCart, IconTrash, IconX } from "@tabler/icons-react";
 import Button from "../atoms/Button";
 import { useRouter } from "next/navigation";
 
@@ -14,9 +14,11 @@ interface ShoppingCartProps {
 const ShoppingCart: React.FC<ShoppingCartProps> = ({ cart, setCart }) => {
   const router = useRouter();
 
-  const updateItem = (id: string, updates: Partial<CartItem>) => {
+  const updateItem = (id: string, size: string, updates: Partial<CartItem>) => {
     setCart(
-      cart.map((item) => (item.id === id ? { ...item, ...updates } : item))
+      cart.map((item) =>
+        item.id === id && item.size === size ? { ...item, ...updates } : item
+      )
     );
   };
 
@@ -24,14 +26,14 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ cart, setCart }) => {
     setCart(cart.filter((item) => item.id !== id));
   };
 
+  const [totalDiscount, setTotalDiscount] = useState(0);
+  // const [subtotal, setSubtotal] = useState(0);
+
   const subtotal = cart.reduce(
     (acc, item) => acc + item.unitPrice * item.quantity,
     0
   );
-  const totalDiscount = cart.reduce(
-    (acc, item) => acc + item.discount * item.quantity,
-    0
-  );
+
   const total = subtotal - totalDiscount;
 
   const handleProcessSale = () => {
@@ -46,7 +48,9 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ cart, setCart }) => {
 
     sessionStorage.setItem("currentSale", JSON.stringify(sale));
 
-    router.push("/recibo");
+    setTimeout(() => {
+      router.push("/recibo");
+    }, 100);
 
     // navigate("/recibo", { state: { sale } });
 
@@ -54,10 +58,10 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ cart, setCart }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm flex flex-col h-full">
-      <div className="p-4 border-b">
+    <div className="bg-white rounded-xl shadow-sm flex flex-col h-full p-4">
+      <div className="p-4 bg-black/6 rounded-xl ">
         <h3 className="text-lg font-semibold flex items-center">
-          <IconShoppingCart size={20} className="mr-2" /> Carrito de Compras
+          Carrito de Compras
         </h3>
       </div>
 
@@ -70,71 +74,62 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ cart, setCart }) => {
           cart.map((item) => (
             <div
               key={item.id}
-              className="flex items-start space-x-3 p-2 bg-gray-50 rounded-md"
+              className="flex items-start space-x-3 p-2  border-b border-gray-200"
             >
               <img
-                src={item.imageUrl}
-                alt={item.productName}
+                src={item.mainImage}
+                alt={item.name}
                 className="w-12 h-12 rounded-md object-cover"
               />
               <div className="flex-grow">
-                <p className="font-semibold text-sm">{item.productName}</p>
-                <p className="text-xs text-gray-500">
-                  {item.variantName} / {item.sizeName}
-                </p>
+                <p className="font-semibold text-sm">{item.name}</p>
+                <p className="text-xs text-gray-500">{item.size}</p>
                 <p className="text-sm font-medium text-teal-600">
                   ${item.unitPrice.toFixed(2)}
                 </p>
               </div>
-              <div className="flex flex-col items-end space-y-1">
+              <div className="flex justify-end items-center gap-3">
                 <div className="flex items-center">
                   <button
                     onClick={() =>
-                      updateItem(item.id, {
+                      updateItem(item.id, item.size, {
                         quantity: Math.max(1, item.quantity - 1),
                       })
                     }
-                    className="px-2 py-0.5 border rounded-l-md"
+                    className="px-2 border rounded-full"
                   >
                     -
                   </button>
+
                   <input
-                    type="number"
+                    type="text"
+                    disabled
                     value={item.quantity}
                     onChange={(e) =>
-                      updateItem(item.id, {
+                      updateItem(item.id, item.size, {
                         quantity: parseInt(e.target.value) || 1,
                       })
                     }
-                    className="w-10 text-center border-t border-b"
+                    className="w-10 text-center"
                   />
+
                   <button
                     onClick={() =>
-                      updateItem(item.id, { quantity: item.quantity + 1 })
+                      updateItem(item.id, item.size, {
+                        quantity: item.quantity + 1,
+                      })
                     }
-                    className="px-2 py-0.5 border rounded-r-md"
+                    className="px-2 border rounded-full"
                   >
                     +
                   </button>
                 </div>
-                <div className="flex items-center text-xs">
-                  <span className="mr-1">Desc: $</span>
-                  <input
-                    type="number"
-                    value={item.discount}
-                    onChange={(e) =>
-                      updateItem(item.id, {
-                        discount: parseFloat(e.target.value) || 0,
-                      })
-                    }
-                    className="w-12 text-center border rounded-md"
-                  />
-                </div>
+
                 <button
                   onClick={() => removeItem(item.id)}
-                  className="text-red-500 hover:text-red-700"
+                  className="bg-red-500 rounded-full text-white p-1  hover:bg-red-700"
                 >
-                  <IconTrash size={16} />
+                  <IconX className="size-3" />
                 </button>
               </div>
             </div>
@@ -142,17 +137,39 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ cart, setCart }) => {
         )}
       </div>
 
-      <div className="p-4 border-t mt-auto bg-gray-50">
+      <div className="p-4  rounded-xl mt-auto bg-black/6">
         <div className="space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span>Subtotal:</span> <span>${subtotal.toFixed(2)}</span>
+          <div className="flex justify-between pr-1">
+            <span>Subtotal:</span>{" "}
+            <span className="text-xl">{subtotal.toLocaleString("es-AR")}</span>
           </div>
-          <div className="flex justify-between">
-            <span>Descuentos:</span>{" "}
-            <span className="text-red-500">-${totalDiscount.toFixed(2)}</span>
+
+          <div className="w-full flex justify-between items-center gap-2">
+            <span className="flex-1">Descuentos:</span>{" "}
+            <div className="flex justify-end items-center gap-0">
+              {/* <p>$</p> */}
+              <input
+                type="text"
+                value={
+                  totalDiscount === 0
+                    ? "0"
+                    : totalDiscount.toLocaleString("es-AR")
+                }
+                onChange={(e) => {
+                  const numericValue = Number(
+                    e.target.value.replace(/\./g, "").replace(",", ".")
+                  );
+                  setTotalDiscount(isNaN(numericValue) ? 0 : numericValue);
+                }}
+                onFocus={(e) => e.target.select()}
+                size={String(totalDiscount.toLocaleString("es-AR")).length || 1}
+                className="border-none outline-none rounded-xl pr-1 text-red-500  text-right text-xl"
+              />
+            </div>
           </div>
-          <div className="flex justify-between font-bold text-lg">
-            <span>Total:</span> <span>${total.toFixed(2)}</span>
+
+          <div className="flex justify-between font-bold text-xl pr-1 border-t border-gray-300 pt-3">
+            <span>Total:</span> <span>{total.toLocaleString("es-AR")}</span>
           </div>
         </div>
         <Button

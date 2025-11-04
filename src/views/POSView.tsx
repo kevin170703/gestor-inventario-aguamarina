@@ -1,17 +1,18 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Category, Product, Variant, Size, CartItem } from "@/types/types";
+import { Category, Product, ProductPOS, Size, CartItem } from "@/types/types";
 import POSGrid from "../components/organisms/POSGrid";
 import ShoppingCart from "../components/organisms/ShoppingCart";
 import api from "@/lib/axios";
 import ProductSelectionModal from "../components/molecules/VariantSelectionModal";
 
 const POSView: React.FC = () => {
-  const [activeCategoryId, setActiveCategoryId] = useState<string>("all");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isVariantModalOpen, setIsVariantModalOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<ProductPOS | null>(
+    null
+  );
 
   // const filteredProducts =
   //   activeCategoryId === "all"
@@ -25,10 +26,8 @@ const POSView: React.FC = () => {
     setIsVariantModalOpen(true);
   };
 
-  const handleAddToCart = (
-    products: { productId: string; size: string; quantity: number }[]
-  ) => {
-    console.log(products, "prodcuts");
+  const handleAddToCart = (products: CartItem[]) => {
+    setCart([...cart, ...products]);
   };
 
   // Produccion
@@ -44,13 +43,14 @@ const POSView: React.FC = () => {
     stock: "",
     nameProduct: "",
     price: "",
+    category: "all",
   });
 
   const [dataSearchProducts, setDataSearchProduct] = useState("");
 
   async function getProducts(e?: React.FormEvent<HTMLFormElement> | null) {
     if (e) e.preventDefault();
-    const { data } = await api.get(`new/products-admin/${page}`, {
+    const { data } = await api.get(`/pos-products/${page}`, {
       params: {
         filters,
         dataSearchProducts,
@@ -90,9 +90,9 @@ const POSView: React.FC = () => {
         <div className="flex-shrink-0 bg-white p-2 rounded-lg shadow-sm mb-4">
           <div className="flex items-center space-x-2 overflow-x-auto pb-2">
             <button
-              onClick={() => setActiveCategoryId("all")}
+              onClick={() => setFilters({ ...filters, category: "all" })}
               className={`px-4 py-2 text-sm font-semibold rounded-md transition-colors ${
-                activeCategoryId === "all"
+                filters.category === "all"
                   ? "bg-teal-600 text-white"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
@@ -101,10 +101,10 @@ const POSView: React.FC = () => {
             </button>
             {categories.map((cat: Category) => (
               <button
-                key={cat.id}
-                onClick={() => setActiveCategoryId(cat.id)}
+                key={cat.name}
+                onClick={() => setFilters({ ...filters, category: cat.name })}
                 className={`px-4 py-2 text-sm font-semibold rounded-md whitespace-nowrap transition-colors ${
-                  activeCategoryId === cat.id
+                  filters.category === cat.name
                     ? "bg-teal-600 text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}

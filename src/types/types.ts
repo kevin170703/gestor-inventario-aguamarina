@@ -37,18 +37,27 @@ export interface Product {
   description: string;
 }
 
+export type ProductPOS = {
+  id: string;
+  name: string;
+  category: string;
+  barcode: string;
+  costPrice: number;
+  salePrice: number;
+  mainImage: string;
+  ProductSizes: ProductSize[]; // Sizes for the main product
+  Variants?: Variant[]; // Optional, simplified variants
+  isActive: boolean;
+  description: string;
+};
+
 export interface CartItem {
-  id: string; // Unique ID for the cart item instance
-  productId: string;
-  variantId: string | null; // null if it's the main product
-  sizeId: string;
+  id: string;
+  size: string;
   quantity: number;
+  name: string;
+  mainImage: string;
   unitPrice: number;
-  discount: number; // Fixed amount
-  productName: string;
-  variantName: string; // "Red T-shirt" or "Base T-shirt"
-  sizeName: string;
-  imageUrl: string;
 }
 
 export interface Sale {

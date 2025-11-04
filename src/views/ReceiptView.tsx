@@ -11,29 +11,31 @@ import Link from "next/link";
 const ReceiptView: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const saleId = searchParams.get("saleId"); // ejemplo: /recibo?saleId=123
+  const saleData = sessionStorage.getItem("currentSale"); // ejemplo: /recibo?saleId=123
 
   const [sale, setSale] = useState<Sale | null>(null);
 
   useEffect(() => {
-    if (!saleId) {
+    if (!saleData) {
       router.replace("/punto-de-venta");
       return;
     }
 
-    // 🔹 Cargar los datos de la venta (puede venir del backend o de un estado global)
-    const fetchSale = async () => {
-      const res = await fetch(`/api/sales/${saleId}`);
-      if (res.ok) {
-        const data = await res.json();
-        setSale(data);
-      } else {
-        router.replace("/punto-de-venta");
-      }
-    };
+    setSale(JSON.parse(saleData));
 
-    fetchSale();
-  }, [saleId, router]);
+    // 🔹 Cargar los datos de la venta (puede venir del backend o de un estado global)
+    // const fetchSale = async () => {
+    //   const res = await fetch(`/api/sales/${saleId}`);
+    //   if (res.ok) {
+    //     const data = await res.json();
+    //     setSale(data);
+    //   } else {
+    //     router.replace("/punto-de-venta");
+    //   }
+    // };
+
+    // fetchSale();
+  }, [saleData, router]);
 
   if (!sale) return null;
 
@@ -42,13 +44,13 @@ const ReceiptView: React.FC = () => {
     0
   );
   const totalDiscount = sale.items.reduce(
-    (acc, item) => acc + item.discount * item.quantity,
+    (acc, item) => acc * item.quantity,
     0
   );
 
   return (
     <div className="bg-gray-100 min-h-screen p-4 sm:p-8 flex flex-col items-center">
-      <div className="w-full max-w-md bg-white p-6 shadow-lg printable-area">
+      <div className="w-full max-w-md mx-auto bg-white p-6 shadow-lg printable-area">
         <h1 className="text-center text-2xl font-bold mb-2">Recibo de Venta</h1>
         <p className="text-center text-sm text-gray-500">POS Pro</p>
         <div className="my-4 border-t border-dashed"></div>
@@ -73,10 +75,8 @@ const ReceiptView: React.FC = () => {
             {sale.items.map((item) => (
               <tr key={item.id}>
                 <td className="py-2">
-                  {item.productName}
-                  <div className="text-xs text-gray-500">
-                    {item.variantName} / {item.sizeName}
-                  </div>
+                  {item.name}
+                  <div className="text-xs text-gray-500">{item.size}</div>
                 </td>
                 <td className="text-center">{item.quantity}</td>
                 <td className="text-right">${item.unitPrice.toFixed(2)}</td>
@@ -112,7 +112,7 @@ const ReceiptView: React.FC = () => {
         </p>
       </div>
 
-      <div className="mt-6 w-full max-w-md no-print flex justify-between">
+      <div className="mt-6 w-full max-w-md no-print flex justify-between items-center">
         <Link href={"/punto-de-venta"}>Volver al POS</Link>
         {/* <Button variant="secondary" hre icon={<IconArrowLeft size={16}/>}>
             </Button> */}
@@ -121,23 +121,52 @@ const ReceiptView: React.FC = () => {
         </Button>
       </div>
 
-      <style>
-        {`
-            @media print {
-                body {
-                    background-color: white;
-                }
-                .no-print {
-                    display: none;
-                }
-                .printable-area {
-                    box-shadow: none;
-                    margin: 0;
-                    padding: 0;
-                }
-            }
-        `}
-      </style>
+      <style jsx global>{`
+        /* Centrado en vista normal */
+        .printable-area {
+          margin-left: auto;
+          margin-right: auto;
+        }
+
+        @media print {
+          @page {
+            size: auto;
+            margin: 0;
+          }
+
+          /* Oculta todo lo demás */
+          body * {
+            visibility: hidden !important;
+          }
+
+          /* Muestra solo el recibo */
+          .printable-area,
+          .printable-area * {
+            visibility: visible !important;
+          }
+
+          /* Centrado vertical y horizontal */
+          .printable-area {
+            position: fixed !important;
+            left: 50% !important;
+            top: 50% !important;
+            transform: translate(-50%, -50%) !important;
+
+            width: auto !important;
+            max-width: 320px !important; /* Ajustá según el ancho deseado */
+            background: white !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            margin: 0 !important;
+            padding: 0.6cm !important;
+          }
+
+          /* Oculta los botones y elementos de control */
+          .no-print {
+            display: none !important;
+          }
+        }
+      `}</style>
     </div>
   );
 };
