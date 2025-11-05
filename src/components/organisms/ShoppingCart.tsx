@@ -2,9 +2,15 @@
 
 import React, { useEffect, useState } from "react";
 import { CartItem } from "@/types/types";
-import { IconShoppingCart, IconTrash, IconX } from "@tabler/icons-react";
+import {
+  IconLoader2,
+  IconShoppingCart,
+  IconTrash,
+  IconX,
+} from "@tabler/icons-react";
 import Button from "../atoms/Button";
 import { useRouter } from "next/navigation";
+import api from "@/lib/axios";
 
 interface ShoppingCartProps {
   cart: CartItem[];
@@ -13,6 +19,8 @@ interface ShoppingCartProps {
 
 const ShoppingCart: React.FC<ShoppingCartProps> = ({ cart, setCart }) => {
   const router = useRouter();
+
+  const [createOrder, setCreateOrder] = useState(false);
 
   const updateItem = (id: string, size: string, updates: Partial<CartItem>) => {
     setCart(
@@ -36,7 +44,8 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ cart, setCart }) => {
 
   const total = subtotal - totalDiscount;
 
-  const handleProcessSale = () => {
+  const handleProcessSale = async () => {
+    setCreateOrder(true);
     if (cart.length === 0) return;
 
     const sale = {
@@ -46,15 +55,30 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ cart, setCart }) => {
       date: new Date(),
     };
 
-    sessionStorage.setItem("currentSale", JSON.stringify(sale));
+    const formatIdsProducts = cart.map((product) => ({
+      ...product,
+      id: product.id.split(".")[0],
+    }));
 
-    setTimeout(() => {
-      router.push("/recibo");
-    }, 100);
+    const { data } = await api.post("/pos/order", {
+      total,
+      items: formatIdsProducts,
+      discount: totalDiscount,
+    });
 
-    // navigate("/recibo", { state: { sale } });
+    if (data.success) {
+      setCart([]);
 
-    setCart([]);
+      sessionStorage.setItem("currentSale", JSON.stringify(sale));
+
+      setTimeout(() => {
+        setCreateOrder(false);
+
+        router.push("/recibo");
+      }, 100);
+
+      // navigate("/recibo", { state: { sale } });
+    }
   };
 
   return (
@@ -177,7 +201,11 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ cart, setCart }) => {
           disabled={cart.length === 0}
           className="w-full mt-4"
         >
-          Realizar Venta
+          {createOrder ? (
+            <IconLoader2 className="animate-spin" />
+          ) : (
+            "Realizar Venta"
+          )}
         </Button>
       </div>
     </div>

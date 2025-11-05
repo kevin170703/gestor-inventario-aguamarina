@@ -49,6 +49,7 @@ export type ProductPOS = {
   Variants?: Variant[]; // Optional, simplified variants
   isActive: boolean;
   description: string;
+  isVariant: boolean;
 };
 
 export interface CartItem {
@@ -58,6 +59,7 @@ export interface CartItem {
   name: string;
   mainImage: string;
   unitPrice: number;
+  isVariant: boolean;
 }
 
 export interface Sale {

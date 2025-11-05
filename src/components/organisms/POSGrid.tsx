@@ -1,10 +1,10 @@
 import React from "react";
-import { Product } from "@/types/types";
+import { Product, ProductPOS } from "@/types/types";
 import ProductCard from "../molecules/ProductCard";
 
 interface POSGridProps {
-  products: Product[];
-  onProductClick: (product: Product) => void;
+  products: ProductPOS[];
+  onProductClick: (product: ProductPOS) => void;
 }
 
 const POSGrid: React.FC<POSGridProps> = ({ products, onProductClick }) => {

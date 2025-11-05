@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { CartItem, Product, Size } from "@/types/types";
+import { CartItem, Product, ProductPOS, Size } from "@/types/types";
 import Modal from "../atoms/Modal";
 import Button from "../atoms/Button";
 
 interface ProductSelectionModalProps {
   isOpen: boolean;
   onClose: () => void;
-  product: Product;
+  product: ProductPOS;
   sizes: Size[];
   onAddToCart: (items: CartItem[]) => void;
 }
@@ -61,12 +61,13 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
 
   const handleAddToCartClick = () => {
     const cartItems: CartItem[] = selectedSizes.map((s) => ({
-      id: product.id + "-" + product.name + Math.random(),
+      id: product.id + "." + Math.random(),
       size: s.name,
       quantity: s.quantity,
       name: product.name,
       mainImage: product.mainImage,
       unitPrice: product.salePrice,
+      isVariant: product.isVariant,
     }));
 
     onAddToCart(cartItems);

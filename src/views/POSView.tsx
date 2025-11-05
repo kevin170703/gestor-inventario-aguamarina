@@ -19,7 +19,7 @@ const POSView: React.FC = () => {
   //     ? products
   //     : products.filter((p) => p.categoryId === activeCategoryId);
 
-  const handleProductClick = (product: Product) => {
+  const handleProductClick = (product: ProductPOS) => {
     // If product has no variants and only one size, add directly to cart? (Future optimization)
     // For now, always open modal to select size.
     setSelectedProduct(product);
@@ -32,7 +32,7 @@ const POSView: React.FC = () => {
 
   // Produccion
 
-  const [products, setProducts] = useState<Product[] | []>([]);
+  const [products, setProducts] = useState<ProductPOS[] | []>([]);
   const [categories, setCategories] = useState<Category[] | []>([]);
   const [sizes, setSizes] = useState<Size[] | []>([]);
 
@@ -83,6 +83,8 @@ const POSView: React.FC = () => {
     getCategories();
     getSizes();
   }, [page, filters]);
+
+  console.log(cart, "carriitoo");
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-100px)]">
