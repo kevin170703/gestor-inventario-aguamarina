@@ -191,6 +191,29 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ cart, setCart }) => {
               />
             </div>
           </div>
+          <div className="w-full flex justify-between items-center gap-2">
+            <span className="flex-1">Adicional:</span>{" "}
+            <div className="flex justify-end items-center gap-0">
+              {/* <p>$</p> */}
+              <input
+                type="text"
+                value={
+                  totalDiscount === 0
+                    ? "0"
+                    : totalDiscount.toLocaleString("es-AR")
+                }
+                onChange={(e) => {
+                  const numericValue = Number(
+                    e.target.value.replace(/\./g, "").replace(",", ".")
+                  );
+                  setTotalDiscount(isNaN(numericValue) ? 0 : numericValue);
+                }}
+                onFocus={(e) => e.target.select()}
+                size={String(totalDiscount.toLocaleString("es-AR")).length || 1}
+                className="border-none outline-none rounded-xl pr-1 text-red-500  text-right text-xl"
+              />
+            </div>
+          </div>
 
           <div className="flex justify-between font-bold text-xl pr-1 border-t border-gray-300 pt-3">
             <span>Total:</span> <span>{total.toLocaleString("es-AR")}</span>

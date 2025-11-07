@@ -1,7 +1,12 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { IconPlus, IconSearch } from "@tabler/icons-react";
+import {
+  IconChevronDown,
+  IconFilter2,
+  IconPlus,
+  IconSearch,
+} from "@tabler/icons-react";
 import { Product, Category, Size, Variant } from "@/types/types";
 import Button from "../components/atoms/Button";
 import Input from "../components/atoms/Input";
@@ -11,6 +16,12 @@ import ProductForm from "../components/molecules/ProductForm";
 import api from "@/lib/axios";
 import axios from "axios";
 import { optimizeAndUploadImageWebP } from "@/lib/firebase";
+
+import {
+  BasketShopping3OutlinedRounded,
+  User4BulkRounded,
+  User4OutlinedRounded,
+} from "@lineiconshq/react-lineicons";
 
 const InventoryView: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -180,13 +191,37 @@ const InventoryView: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="w-full flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-800">
-          Inventario de Productos
-        </h2>
+      <div className="w-full flex justify-between items-center border-b border-gray-200 pb-4">
+        <h2 className="text-2xl font-semibold text-black/80">Inventario</h2>
 
-        <div className="w-max flex-grow flex items-center justify-end space-x-4">
-          <div className="relative w-full max-w-[300px]">
+        <div className="flex justify-center items-center gap-3 border-l border-gray-200 pl-4">
+          <div className="bg-primary rounded-full p-1.5">
+            <User4OutlinedRounded className="text-white" />
+          </div>
+
+          <div>
+            <p className="font-medium">Agumarina</p>
+
+            <p className="text-[10px] text-black/70">
+              aguamarinatienda@gmail.com
+            </p>
+          </div>
+
+          <IconChevronDown className="text-black/50 size-6" />
+        </div>
+      </div>
+
+      <div className="flex justify-between items-center gap-2 mb-12">
+        <div className="flex justify-start items-center gap-2">
+          <div className="bg-gray-200 w-max p-1.5 rounded-xl">
+            <BasketShopping3OutlinedRounded className="text-gray-600" />
+          </div>
+          <p className="font-semibold text-2xl">120</p>
+          <p className="text-xs text-black/50 font-medium">Productos</p>
+        </div>
+
+        <div className="w-max flex-grow flex items-center justify-end space-x-2">
+          {/* <div className="relative w-full max-w-[300px]">
             <Input
               type="text"
               placeholder="Buscar por nombre..."
@@ -212,11 +247,20 @@ const InventoryView: React.FC = () => {
                 </option>
               ))}
             </Select>
-          </div>
+          </div> */}
 
-          <Button onClick={handleAddProduct} icon={<IconPlus size={16} />}>
+          <button className="flex justify-center items-center gap-2 text-sm border border-black/20 rounded-2xl h-11 px-3 ">
+            <IconFilter2 className="size-6 text-black/70" />
+            Filtros
+          </button>
+
+          <button
+            className="bg-primary h-11 px-3 flex justify-center items-center gap-2 text-white rounded-2xl text-sm"
+            onClick={handleAddProduct}
+          >
+            {/* <IconPlus size={16} /> */}
             Crear Producto
-          </Button>
+          </button>
         </div>
       </div>
 

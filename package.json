@@ -10,6 +10,7 @@
     "optimize:images": "ts-node --project tsconfig.script.json scripts/optimize-images.ts"
   },
   "dependencies": {
+    "@lineiconshq/react-lineicons": "^1.0.5",
     "@tabler/icons-react": "^3.35.0",
     "axios": "^1.12.2",
     "browser-image-compression": "^2.0.2",
