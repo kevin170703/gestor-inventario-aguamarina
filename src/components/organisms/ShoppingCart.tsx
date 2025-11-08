@@ -4,6 +4,8 @@ import React, { useEffect, useState } from "react";
 import { CartItem } from "@/types/types";
 import {
   IconLoader2,
+  IconMinus,
+  IconPlus,
   IconShoppingCart,
   IconTrash,
   IconX,
@@ -11,6 +13,7 @@ import {
 import Button from "../atoms/Button";
 import { useRouter } from "next/navigation";
 import api from "@/lib/axios";
+import Image from "next/image";
 
 interface ShoppingCartProps {
   cart: CartItem[];
@@ -35,6 +38,7 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ cart, setCart }) => {
   };
 
   const [totalDiscount, setTotalDiscount] = useState(0);
+  const [totalAddition, setTotalAddition] = useState(0);
   // const [subtotal, setSubtotal] = useState(0);
 
   const subtotal = cart.reduce(
@@ -42,7 +46,7 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ cart, setCart }) => {
     0
   );
 
-  const total = subtotal - totalDiscount;
+  const total = subtotal + totalAddition - totalDiscount;
 
   const handleProcessSale = async () => {
     setCreateOrder(true);
@@ -82,14 +86,12 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ cart, setCart }) => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm flex flex-col h-full p-4">
-      <div className="p-4 bg-black/6 rounded-xl ">
-        <h3 className="text-lg font-semibold flex items-center">
-          Carrito de Compras
-        </h3>
-      </div>
+    <div className="bg-white border-l border-gray-200 flex flex-col h-full">
+      <h3 className="text-xl font-semibold flex items-center p-4 border-b border-gray-200">
+        Carrito de Compras
+      </h3>
 
-      <div className="flex-grow overflow-y-auto p-4 space-y-3">
+      <div className="flex-grow overflow-y-auto p-4 space-y-3 px-4">
         {cart.length === 0 ? (
           <div className="text-center text-gray-500 pt-10">
             El carrito está vacío.
@@ -98,31 +100,39 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ cart, setCart }) => {
           cart.map((item) => (
             <div
               key={item.id}
-              className="flex items-start space-x-3 p-2  border-b border-gray-200"
+              className="flex items-center justify-center space-x-3 p-2  border-b border-gray-200 relative"
             >
-              <img
-                src={item.mainImage}
-                alt={item.name}
-                className="w-12 h-12 rounded-md object-cover"
-              />
+              <div className="size-14 rounded-full p-1 border border-gray-200 mr-3 ">
+                <Image
+                  width={250}
+                  height={250}
+                  src={item.mainImage}
+                  alt={item.name}
+                  className="size-full rounded-full object-contain "
+                />
+              </div>
+
               <div className="flex-grow">
-                <p className="font-semibold text-sm">{item.name}</p>
-                <p className="text-xs text-gray-500">{item.size}</p>
-                <p className="text-sm font-medium text-teal-600">
-                  ${item.unitPrice.toFixed(2)}
+                <p className="font-medium text-sm">
+                  {item.name} ({item.size})
+                </p>
+
+                <p className="text-sm font-medium text-primary">
+                  ${item.unitPrice.toLocaleString("es-AR")}
                 </p>
               </div>
               <div className="flex justify-end items-center gap-3">
                 <div className="flex items-center">
                   <button
+                    disabled={item.quantity <= 1}
                     onClick={() =>
                       updateItem(item.id, item.size, {
                         quantity: Math.max(1, item.quantity - 1),
                       })
                     }
-                    className="px-2 border rounded-full"
+                    className="p-1 bg-primary text-white rounded-full disabled:opacity-50"
                   >
-                    -
+                    <IconMinus className="size-4" />
                   </button>
 
                   <input
@@ -138,20 +148,21 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ cart, setCart }) => {
                   />
 
                   <button
+                    disabled={item.quantity >= 10}
                     onClick={() =>
                       updateItem(item.id, item.size, {
                         quantity: item.quantity + 1,
                       })
                     }
-                    className="px-2 border rounded-full"
+                    className="p-1 bg-primary text-white rounded-full disabled:opacity-50"
                   >
-                    +
+                    <IconPlus className="size-4" />
                   </button>
                 </div>
 
                 <button
                   onClick={() => removeItem(item.id)}
-                  className="bg-red-500 rounded-full text-white p-1  hover:bg-red-700"
+                  className="bg-red-500 rounded-full text-white p-1  hover:bg-red-700 absolute top-1 left-1"
                 >
                   <IconX className="size-3" />
                 </button>
@@ -161,15 +172,15 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ cart, setCart }) => {
         )}
       </div>
 
-      <div className="p-4  rounded-xl mt-auto bg-black/6">
-        <div className="space-y-2 text-sm">
-          <div className="flex justify-between pr-1">
-            <span>Subtotal:</span>{" "}
-            <span className="text-xl">{subtotal.toLocaleString("es-AR")}</span>
+      <div className="p-4 mt-auto border-t border-gray-200">
+        <div className="space-y-1 text-sm">
+          <div className="flex justify-between pr-1 text-base font-medium">
+            <span className=" text-black/60">Subtotal:</span>{" "}
+            <span className="">{subtotal.toLocaleString("es-AR")}</span>
           </div>
 
-          <div className="w-full flex justify-between items-center gap-2">
-            <span className="flex-1">Descuentos:</span>{" "}
+          <div className="w-full flex justify-between items-center gap-2 text-base font-medium">
+            <span className="flex-1 text-black/60">Descuentos:</span>{" "}
             <div className="flex justify-end items-center gap-0">
               {/* <p>$</p> */}
               <input
@@ -187,38 +198,40 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ cart, setCart }) => {
                 }}
                 onFocus={(e) => e.target.select()}
                 size={String(totalDiscount.toLocaleString("es-AR")).length || 1}
-                className="border-none outline-none rounded-xl pr-1 text-red-500  text-right text-xl"
+                className="border-none outline-none pr-1 text-red-500  text-right"
               />
             </div>
           </div>
-          <div className="w-full flex justify-between items-center gap-2">
-            <span className="flex-1">Adicional:</span>{" "}
+
+          <div className="w-full flex justify-between items-center gap-2 text-base font-medium">
+            <span className="flex-1 text-black/60">Adicional:</span>{" "}
             <div className="flex justify-end items-center gap-0">
               {/* <p>$</p> */}
               <input
                 type="text"
                 value={
-                  totalDiscount === 0
+                  totalAddition === 0
                     ? "0"
-                    : totalDiscount.toLocaleString("es-AR")
+                    : totalAddition.toLocaleString("es-AR")
                 }
                 onChange={(e) => {
                   const numericValue = Number(
                     e.target.value.replace(/\./g, "").replace(",", ".")
                   );
-                  setTotalDiscount(isNaN(numericValue) ? 0 : numericValue);
+                  setTotalAddition(isNaN(numericValue) ? 0 : numericValue);
                 }}
                 onFocus={(e) => e.target.select()}
-                size={String(totalDiscount.toLocaleString("es-AR")).length || 1}
-                className="border-none outline-none rounded-xl pr-1 text-red-500  text-right text-xl"
+                size={String(totalAddition.toLocaleString("es-AR")).length || 1}
+                className="border-none outline-none pr-1 text-red-500  text-right"
               />
             </div>
           </div>
 
-          <div className="flex justify-between font-bold text-xl pr-1 border-t border-gray-300 pt-3">
+          <div className="flex justify-between font-medium text-base">
             <span>Total:</span> <span>{total.toLocaleString("es-AR")}</span>
           </div>
         </div>
+
         <Button
           onClick={handleProcessSale}
           disabled={cart.length === 0}

@@ -1,5 +1,6 @@
 import React from "react";
 import { Product } from "@/types/types";
+import Image from "next/image";
 
 interface ProductCardProps {
   product: Product;
@@ -9,22 +10,22 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
   return (
     <div
-      className="bg-white rounded-lg shadow-sm overflow-hidden cursor-pointer transition-transform transform hover:scale-105 group"
+      className="bg-white rounded-xl shadow-sm border-6 border-primary/5 overflow-hidden cursor-pointer transition-transform transform hover:scale-105 group"
       onClick={onClick}
     >
       <div className="relative">
-        <img
+        <Image
+          width={700}
+          height={700}
           src={product.mainImage}
           alt={product.name}
-          className="w-full h-32 object-cover"
+          className="w-full h-40 object-cover bg-primary"
         />
       </div>
-      <div className="p-3">
-        <h4 className="text-sm font-semibold text-gray-800 truncate group-hover:text-teal-600">
-          {product.name}
-        </h4>
-        <p className="text-lg font-bold text-teal-600 mt-1">
-          ${product.salePrice.toFixed(2)}
+      <div className="p-2">
+        <h4 className="text-sm font-medium truncate">{product.name}</h4>
+        <p className="text-lg font-bold text-primary mt-1">
+          ${product.salePrice.toLocaleString("es-AR")}
         </p>
       </div>
     </div>

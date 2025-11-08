@@ -122,7 +122,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onNavLinkClick }) => {
       <div className="w-full border-t pt-4 border-gray-300">
         <button
           onClick={onNavLinkClick}
-          className={`text-black flex justify-start font-medium items-center gap-3 text-sm rounded-xl pl-2`}
+          className={`text-black flex justify-start font-medium items-center gap-3 text-sm rounded-xl pl-2 cursor-pointer transition-colors hover:text-red-800`}
         >
           <ExitOutlinedRounded className="size-6" />
           Salir
@@ -159,7 +159,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
       {/* Contenido principal */}
       <main className="flex-1 flex flex-col overflow-hidden">
-        <div className="flex-1 p-6 overflow-y-auto">{children}</div>
+        <div className="flex-1 overflow-y-auto">{children}</div>
       </main>
     </div>
   );

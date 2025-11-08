@@ -87,41 +87,39 @@ const POSView: React.FC = () => {
   console.log(cart, "carriitoo");
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-100px)]">
-      <div className="lg:col-span-2 flex flex-col h-full">
-        <div className="flex-shrink-0 bg-white p-2 rounded-lg shadow-sm mb-4">
-          <div className="flex items-center space-x-2 overflow-x-auto pb-2">
+    <div className="flex gap-6 w-full h-max">
+      <div className="flex flex-col h-full w-[70%] p-6">
+        <div className="flex justify-start items-center gap-2 flex-wrap mb-6">
+          <button
+            onClick={() => setFilters({ ...filters, category: "all" })}
+            className={`px-10 py-6 text-sm font-semibold rounded-2xl transition-colors cursor-pointer ${
+              filters.category === "all"
+                ? "bg-primary text-white"
+                : "bg-black/10 text-gray-700 hover:bg-gray-200"
+            }`}
+          >
+            Todos
+          </button>
+          {categories.map((cat: Category) => (
             <button
-              onClick={() => setFilters({ ...filters, category: "all" })}
-              className={`px-4 py-2 text-sm font-semibold rounded-md transition-colors ${
-                filters.category === "all"
-                  ? "bg-teal-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              key={cat.name}
+              onClick={() => setFilters({ ...filters, category: cat.name })}
+              className={`px-10 py-6  text-sm font-semibold rounded-2xl whitespace-nowrap transition-colors cursor-pointer ${
+                filters.category === cat.name
+                  ? "bg-primary text-white"
+                  : "bg-black/10 text-gray-700 hover:bg-gray-200"
               }`}
             >
-              Todos
+              {cat.name}
             </button>
-            {categories.map((cat: Category) => (
-              <button
-                key={cat.name}
-                onClick={() => setFilters({ ...filters, category: cat.name })}
-                className={`px-4 py-2 text-sm font-semibold rounded-md whitespace-nowrap transition-colors ${
-                  filters.category === cat.name
-                    ? "bg-teal-600 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                {cat.name}
-              </button>
-            ))}
-          </div>
+          ))}
         </div>
         <div className="flex-grow overflow-y-auto">
           <POSGrid products={products} onProductClick={handleProductClick} />
         </div>
       </div>
 
-      <div className="lg:col-span-1 h-full">
+      <div className="h-full fixed right-5 w-[25%]">
         <ShoppingCart cart={cart} setCart={setCart} />
       </div>
 

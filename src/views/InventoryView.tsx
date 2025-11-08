@@ -25,6 +25,7 @@ import {
   User4OutlinedRounded,
 } from "@lineiconshq/react-lineicons";
 import { AnimatePresence, motion } from "framer-motion";
+import { showToast } from "nextjs-toast-notify";
 
 const InventoryView: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -59,8 +60,6 @@ const InventoryView: React.FC = () => {
     setEditingProduct(null);
   };
 
-  // 🔹 Función para subir una imagen base64 a Firebase vía API
-
   const handleFormSave = async (product: Product) => {
     if (product.id) {
       const updatedProduct = { ...product };
@@ -91,11 +90,19 @@ const InventoryView: React.FC = () => {
 
       const { data } = await api.put("admin-edit-product", updatedProduct);
 
-      console.log("resultado", data);
+      showToast.success(data.msg, {
+        duration: 4000,
+        progress: false,
+        position: "top-right",
+        transition: "slideInUp",
+        icon: "",
+        sound: false,
+      });
+
+      reloadData();
     } else {
       const updatedProduct = { ...product };
 
-      // Imagen principal
       if (product.mainImage.startsWith("data:image")) {
         updatedProduct.mainImage = await optimizeAndUploadImageWebP(
           product.mainImage,
@@ -103,7 +110,6 @@ const InventoryView: React.FC = () => {
         );
       }
 
-      // Variantes
       if (product.Variants?.length) {
         updatedProduct.Variants = await Promise.all(
           product.Variants.map(async (variant) => {
@@ -119,11 +125,18 @@ const InventoryView: React.FC = () => {
         );
       }
 
-      // return updatedProduct;
-
       const { data } = await api.post("admin-product", updatedProduct);
 
-      console.log("resultado", data);
+      showToast.success(data.msg, {
+        duration: 4000,
+        progress: false,
+        position: "top-right",
+        transition: "slideInUp",
+        icon: "",
+        sound: false,
+      });
+
+      reloadData();
     }
   };
 
@@ -203,14 +216,18 @@ const InventoryView: React.FC = () => {
     if (page < totals.totalPages) setPage(page + 1);
   };
 
-  useEffect(() => {
+  function reloadData() {
     getProducts();
     getCategories();
     getSizes();
+  }
+
+  useEffect(() => {
+    reloadData();
   }, [page, filters]);
 
   return (
-    <div className="space-y-6 overflow-hidden">
+    <div className="space-y-6 overflow-hidden p-6">
       <div className="w-full flex justify-between items-center border-b border-gray-200 pb-4">
         <h2 className="text-2xl font-semibold text-black/80">Inventario</h2>
 
@@ -227,7 +244,7 @@ const InventoryView: React.FC = () => {
             </p>
           </div>
 
-          <IconChevronDown className="text-black/50 size-6" />
+          {/* <IconChevronDown className="text-black/50 size-6" /> */}
         </div>
       </div>
 
@@ -275,7 +292,7 @@ const InventoryView: React.FC = () => {
           </button>
 
           <button
-            className="bg-primary h-11 px-3 flex justify-center items-center gap-2 text-white rounded-2xl text-sm"
+            className="bg-primary h-11 px-3 flex justify-center items-center gap-2 text-white rounded-2xl text-sm cursor-pointer hover:bg-primary/90"
             onClick={handleAddProduct}
           >
             {/* <IconPlus size={16} /> */}

@@ -5,7 +5,7 @@ import { Product, Category, Size, Variant, ProductSize } from "@/types/types";
 import Button from "../atoms/Button";
 import Input from "../atoms/Input";
 import Select from "../atoms/Select";
-import { IconPlus, IconTrash, IconX } from "@tabler/icons-react";
+import { IconLoader2, IconPlus, IconTrash, IconX } from "@tabler/icons-react";
 import UploadImage from "../atoms/UploadImage";
 import TextArea from "../atoms/TextArea";
 
@@ -59,6 +59,8 @@ const ProductForm: React.FC<ProductFormProps> = ({
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [newSizeName, setNewSizeName] = useState("");
   const [isAddingSize, setIsAddingSize] = useState(false);
+
+  const [loader, setLoader] = useState(false);
 
   useEffect(() => {
     setFormData(product ? JSON.parse(JSON.stringify(product)) : emptyProduct);
@@ -281,7 +283,10 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setLoader(true);
     onSave(formData as Product);
+    setLoader(false);
+    onClose();
   };
 
   if (!isOpen) return null;
@@ -300,7 +305,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
         className="fixed top-0 right-0 h-full w-full max-w-2xl overflow-hidden bg-white rounded-l-2xl  flex flex-col border-l border-gray-200"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex justify-between items-center p-4 border-b border-gray-200 mx-4">
+        <div className="flex justify-between items-center p-4 border-b border-gray-200">
           <h2 className="text-xl font-semibold">
             {product ? "Editar Producto" : "Crear Nuevo Producto"}
           </h2>
@@ -314,10 +319,10 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
         <form
           onSubmit={handleSubmit}
-          className="flex-1 overflow-y-auto pt-6 space-y-6 px-4 "
+          className="flex-1 overflow-y-auto pt-6 space-y-6 "
         >
           {/* Main Product Info */}
-          <div className="space-y-6 border-b border-gray-200 py-4 ">
+          <div className="space-y-6 border-b border-gray-200 py-4  mx-4 ">
             <div className="flex items-center space-x-4">
               <div className="flex-grow">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -517,12 +522,14 @@ const ProductForm: React.FC<ProductFormProps> = ({
           </div>
 
           {/* Variants Section */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium ">Variantes (Opcional)</h3>
+          <div className="space-y-4 mx-4 ">
+            <h3 className="text-base font-medium  bg-black/6 py-4 rounded-2xl px-4 ">
+              Variantes (Opcional)
+            </h3>
             {(formData.Variants || []).map((variant, vIndex) => (
               <div
                 key={variant.id}
-                className="p-6 border border-gray-200 rounded-3xl bg-white space-y-4 relative"
+                className="py-6 border-b border-gray-200  space-y-4 relative"
               >
                 <button
                   type="button"
@@ -685,16 +692,25 @@ const ProductForm: React.FC<ProductFormProps> = ({
             </Button>
           </div>
 
-          <div className="flex justify-end p-4  mt-6 border-t border-gray-200 bg-red-400 sticky bottom-0">
-            <Button
+          <div className="flex justify-end items-center gap-10 p-4  mt-6 border-t border-gray-200 bg-white sticky bottom-0">
+            <button
               type="button"
-              variant="secondary"
               onClick={onClose}
-              className="mr-2"
+              className="font-medium text-sm cursor-pointer"
             >
               Cancelar
-            </Button>
-            <Button type="submit">Guardar Producto</Button>
+            </button>
+            <button
+              type="submit"
+              disabled={loader}
+              className="bg-primary h-11 px-3 min-w-[150px] flex justify-center items-center gap-2 text-white rounded-2xl text-sm cursor-pointer hover:bg-primary/90 transition-all"
+            >
+              {loader ? (
+                <IconLoader2 className="animate-spin" />
+              ) : (
+                "Guardar Producto"
+              )}
+            </button>
           </div>
         </form>
       </div>
