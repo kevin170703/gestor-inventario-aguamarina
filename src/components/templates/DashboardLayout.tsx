@@ -140,7 +140,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     <div className="flex h-screen bg-white">
       {/* Sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 transform 
+        className={`fixed inset-y-0 left-0 z-30 transform 
           lg:relative lg:translate-x-0 lg:flex-shrink-0
           transition-transform duration-300 ease-in-out
           ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}

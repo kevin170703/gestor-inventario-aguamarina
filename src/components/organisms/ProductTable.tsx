@@ -17,9 +17,6 @@ const ProductTable: React.FC<ProductTableProps> = ({
   sizes,
   onEdit,
 }) => {
-  const getCategoryName = (id: string) =>
-    categories.find((c) => c.id === id)?.name || "N/A";
-
   const getTotalStock = (product: Product) => {
     const mainStock = product.ProductSizes.reduce(
       (sum, size) => sum + size.quantity,

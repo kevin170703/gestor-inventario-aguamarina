@@ -20,6 +20,15 @@ export interface Variant {
   mainImage: string;
   ProductSizes: ProductSize[];
   isActive: boolean;
+  barcode: string;
+}
+
+export interface Totals {
+  totalProducts: number;
+  totalVariants: number;
+  totalCombined: number;
+  totalPages: number;
+  remainingPages: number;
 }
 
 // The main product has all the core details

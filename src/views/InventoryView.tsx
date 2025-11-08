@@ -3,11 +3,13 @@
 import React, { useEffect, useState } from "react";
 import {
   IconChevronDown,
+  IconChevronLeft,
+  IconChevronRight,
   IconFilter2,
   IconPlus,
   IconSearch,
 } from "@tabler/icons-react";
-import { Product, Category, Size, Variant } from "@/types/types";
+import { Product, Category, Size, Variant, Totals } from "@/types/types";
 import Button from "../components/atoms/Button";
 import Input from "../components/atoms/Input";
 import Select from "../components/atoms/Select";
@@ -22,12 +24,21 @@ import {
   User4BulkRounded,
   User4OutlinedRounded,
 } from "@lineiconshq/react-lineicons";
+import { AnimatePresence, motion } from "framer-motion";
 
 const InventoryView: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+
+  const [totals, setTotals] = useState<Totals>({
+    remainingPages: 0,
+    totalCombined: 0,
+    totalPages: 0,
+    totalProducts: 0,
+    totalVariants: 0,
+  });
 
   const [products, setProducts] = useState<Product[] | []>([]);
   const [categories, setCategories] = useState<Category[] | []>([]);
@@ -140,7 +151,10 @@ const InventoryView: React.FC = () => {
 
     console.log(data, "productos traidos");
 
-    if (data.success) setProducts(data.products);
+    if (data.success) {
+      setProducts(data.products);
+      setTotals(data.totals);
+    }
   }
 
   async function getCategories(e?: React.FormEvent<HTMLFormElement> | null) {
@@ -181,16 +195,22 @@ const InventoryView: React.FC = () => {
     return data.size;
   }
 
+  const handlePrev = () => {
+    if (page > 1) setPage(page - 1);
+  };
+
+  const handleNext = () => {
+    if (page < totals.totalPages) setPage(page + 1);
+  };
+
   useEffect(() => {
     getProducts();
     getCategories();
     getSizes();
   }, [page, filters]);
 
-  console.log({ sizes, categories, products });
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 overflow-hidden">
       <div className="w-full flex justify-between items-center border-b border-gray-200 pb-4">
         <h2 className="text-2xl font-semibold text-black/80">Inventario</h2>
 
@@ -216,7 +236,7 @@ const InventoryView: React.FC = () => {
           <div className="bg-gray-200 w-max p-1.5 rounded-xl">
             <BasketShopping3OutlinedRounded className="text-gray-600" />
           </div>
-          <p className="font-semibold text-2xl">120</p>
+          <p className="font-semibold text-2xl">{totals.totalCombined}</p>
           <p className="text-xs text-black/50 font-medium">Productos</p>
         </div>
 
@@ -271,18 +291,43 @@ const InventoryView: React.FC = () => {
         sizes={sizes}
       />
 
-      {isFormOpen && (
-        <ProductForm
-          isOpen={isFormOpen}
-          onClose={handleFormClose}
-          onSave={handleFormSave}
-          product={editingProduct}
-          categories={categories}
-          sizes={sizes}
-          onAddCategory={addCategory}
-          onAddSize={addSize}
-        />
-      )}
+      <div className="flex items-center justify-center gap-3 mt-6">
+        <button
+          onClick={handlePrev}
+          disabled={page === 1}
+          className="p-1 rounded-xl bg-primary text-white hover:bg-primary/90 disabled:opacity-50 cursor-pointer"
+        >
+          <IconChevronLeft />
+        </button>
+
+        <p className="text-sm font-medium text-black/50">
+          <span className="text-xl text-black">{page} </span>
+          de {totals.totalPages}
+        </p>
+
+        <button
+          onClick={handleNext}
+          disabled={page === totals.totalPages}
+          className="p-1 rounded-xl bg-primary text-white hover:bg-primary/90 disabled:opacity-50 cursor-pointer"
+        >
+          <IconChevronRight />
+        </button>
+      </div>
+
+      <AnimatePresence mode="wait">
+        {isFormOpen && (
+          <ProductForm
+            isOpen={isFormOpen}
+            onClose={handleFormClose}
+            onSave={handleFormSave}
+            product={editingProduct}
+            categories={categories}
+            sizes={sizes}
+            onAddCategory={addCategory}
+            onAddSize={addSize}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

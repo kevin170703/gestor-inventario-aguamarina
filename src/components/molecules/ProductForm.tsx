@@ -9,6 +9,8 @@ import { IconPlus, IconTrash, IconX } from "@tabler/icons-react";
 import UploadImage from "../atoms/UploadImage";
 import TextArea from "../atoms/TextArea";
 
+import { AnimatePresence, motion } from "framer-motion";
+
 interface ProductFormProps {
   isOpen: boolean;
   onClose: () => void;
@@ -25,6 +27,7 @@ const emptyVariant: Omit<Variant, "id"> = {
   mainImage: "",
   ProductSizes: [],
   isActive: true,
+  barcode: "",
 };
 const emptyProduct: Omit<Product, "id"> = {
   name: "",
@@ -86,7 +89,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
           console.log("entro aca por imagen variante");
           const newVariants = [...(formData.Variants || [])];
           newVariants[variantIndex].mainImage = mainImage;
-          setFormData((prev) => ({ ...prev, variants: newVariants }));
+          setFormData((prev) => ({ ...prev, Variants: newVariants }));
         } else {
           setFormData((prev) => ({ ...prev, mainImage }));
         }
@@ -207,6 +210,31 @@ const ProductForm: React.FC<ProductFormProps> = ({
     }));
   };
 
+  const handleSizeDeleteVariant = (name: string, id: string) => {
+    const variant = formData.Variants?.find((s) => s.id === id);
+    if (!variant) return;
+
+    const size = variant.ProductSizes.find((s) => s.name === name);
+    if (!size) return;
+
+    setFormData((prev) => ({
+      ...prev,
+      ProductSizes: prev.ProductSizes.filter((s) => s.name !== name),
+    }));
+
+    setFormData((prev) => ({
+      ...prev,
+      Variants: prev.Variants?.map((v) =>
+        v.id === id
+          ? {
+              ...v,
+              ProductSizes: v.ProductSizes.filter((s) => s.name !== name),
+            }
+          : v
+      ),
+    }));
+  };
+
   const handleAddVariant = () => {
     const newVariant = { ...emptyVariant, id: `var-${Date.now()}` };
     setFormData((prev) => ({
@@ -258,18 +286,21 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
   if (!isOpen) return null;
 
-  console.log(formData, "FormData");
-
   return (
-    <div
-      className="fixed inset-0 bg-black/10 bg-opacity-50 z-40"
+    <motion.div
+      key="product-form"
+      initial={{ x: "100%", opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      exit={{ x: "100%", opacity: 0 }}
+      transition={{ type: "spring", stiffness: 120, damping: 18 }}
+      className="fixed inset-0 bg-black/30 bg-opacity-50 z-40"
       onClick={onClose}
     >
       <div
-        className="fixed top-0 right-0 h-full w-full max-w-2xl bg-gray-100 shadow-xl flex flex-col border-l border-gray-200"
+        className="fixed top-0 right-0 h-full w-full max-w-2xl overflow-hidden bg-white rounded-l-2xl  flex flex-col border-l border-gray-200"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex justify-between items-center p-4 border-b border-gray-200">
+        <div className="flex justify-between items-center p-4 border-b border-gray-200 mx-4">
           <h2 className="text-xl font-semibold">
             {product ? "Editar Producto" : "Crear Nuevo Producto"}
           </h2>
@@ -283,13 +314,32 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
         <form
           onSubmit={handleSubmit}
-          className="flex-1 overflow-y-auto px-6 pt-6 space-y-6"
+          className="flex-1 overflow-y-auto pt-6 space-y-6 px-4 "
         >
           {/* Main Product Info */}
-          <div className="space-y-6 p-4  rounded-3xl border border-gray-200 bg-white">
-            <h3 className="text-lg font-medium border-b border-gray-200 pb-2">
-              Producto Principal
-            </h3>
+          <div className="space-y-6 border-b border-gray-200 py-4 ">
+            <div className="flex items-center space-x-4">
+              <div className="flex-grow">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Imagen Principal
+                </label>
+
+                <div className="size-52">
+                  <UploadImage
+                    id="mainImage"
+                    value={
+                      formData.mainImage === ""
+                        ? null // 👈 si es File, no hay string todavía
+                        : formData.mainImage || null // 👈 si es string, lo pasamos
+                    }
+                    onChange={(image) => {
+                      // handleChange("coverImage", image?.preview ?? null);
+                      handleImageChange(image?.file ?? null); // opcional: guardar el file real
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
 
             <Input
               label="Nombre del Producto"
@@ -355,29 +405,6 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 </Button>
               </div>
             )}
-
-            <div className="flex items-center space-x-4">
-              <div className="flex-grow">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Imagen Principal
-                </label>
-
-                <div className="size-52">
-                  <UploadImage
-                    id="mainImage"
-                    value={
-                      formData.mainImage === ""
-                        ? null // 👈 si es File, no hay string todavía
-                        : formData.mainImage || null // 👈 si es string, lo pasamos
-                    }
-                    onChange={(image) => {
-                      // handleChange("coverImage", image?.preview ?? null);
-                      handleImageChange(image?.file ?? null); // opcional: guardar el file real
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 ">
               <Input
@@ -491,9 +518,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
           {/* Variants Section */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium border-b pb-2">
-              Variantes (Opcional)
-            </h3>
+            <h3 className="text-lg font-medium ">Variantes (Opcional)</h3>
             {(formData.Variants || []).map((variant, vIndex) => (
               <div
                 key={variant.id}
@@ -507,12 +532,23 @@ const ProductForm: React.FC<ProductFormProps> = ({
                   <IconTrash size={18} />
                 </button>
 
-                <Input
-                  label="Nombre Variante (ej. Color)"
-                  name="name"
-                  value={variant.name}
-                  onChange={(e) => handleVariantChange(vIndex, e)}
-                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
+                  <Input
+                    label="Nombre Variante (ej. Color)"
+                    name="name"
+                    type="text"
+                    value={variant.name}
+                    onChange={(e) => handleVariantChange(vIndex, e)}
+                  />
+
+                  <Input
+                    type="text"
+                    label="Código de Barras"
+                    name="barcode"
+                    value={variant.barcode}
+                    onChange={(e) => handleVariantChange(vIndex, e)}
+                  />
+                </div>
 
                 <div className="flex items-center space-x-4">
                   <div className="flex-grow">
@@ -593,7 +629,9 @@ const ProductForm: React.FC<ProductFormProps> = ({
                         >
                           <button
                             className="rounded-full size-4 p-0.5 bg-red-400 text-white cursor-pointer absolute top-0 right-0"
-                            onClick={() => handleSizeDelete(size.name)}
+                            onClick={() =>
+                              handleSizeDeleteVariant(size.name, variant.id)
+                            }
                           >
                             <IconX className="size-full" />
                           </button>
@@ -647,7 +685,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
             </Button>
           </div>
 
-          <div className="flex justify-end p-4 -mx-6 mt-6 border-t border-gray-200 bg-white sticky bottom-0">
+          <div className="flex justify-end p-4  mt-6 border-t border-gray-200 bg-red-400 sticky bottom-0">
             <Button
               type="button"
               variant="secondary"
@@ -660,7 +698,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
           </div>
         </form>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
