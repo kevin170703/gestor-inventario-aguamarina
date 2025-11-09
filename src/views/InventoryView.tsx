@@ -149,9 +149,14 @@ const InventoryView: React.FC = () => {
     stock: "",
     nameProduct: "",
     price: "",
+    category: "all",
   });
 
   const [dataSearchProducts, setDataSearchProduct] = useState("");
+
+  const hadelchangecategory = (value: string) => {
+    setFilters({ ...filters, category: value });
+  };
 
   async function getProducts(e?: React.FormEvent<HTMLFormElement> | null) {
     if (e) e.preventDefault();
@@ -227,11 +232,11 @@ const InventoryView: React.FC = () => {
   }, [page, filters]);
 
   return (
-    <div className="space-y-6 overflow-hidden p-6">
+    <div className="space-y-6 overflow-hidden p-6 max-md:px-4 max-md:pt-16">
       <div className="w-full flex justify-between items-center border-b border-gray-200 pb-4">
         <h2 className="text-2xl font-semibold text-black/80">Inventario</h2>
 
-        <div className="flex justify-center items-center gap-3 border-l border-gray-200 pl-4">
+        <div className="flex justify-center items-center gap-3 border-l border-gray-200 pl-4 max-md:hidden">
           <div className="bg-primary rounded-full p-1.5">
             <User4OutlinedRounded className="text-white" />
           </div>
@@ -248,7 +253,7 @@ const InventoryView: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex justify-between items-center gap-2 mb-12">
+      <div className="flex  justify-between items-center gap-x-2 gap-y-6 mb-12 max-md:flex-col max-md:items-start">
         <div className="flex justify-start items-center gap-2">
           <div className="bg-gray-200 w-max p-1.5 rounded-xl">
             <BasketShopping3OutlinedRounded className="text-gray-600" />
@@ -270,26 +275,27 @@ const InventoryView: React.FC = () => {
               size={20}
               className="absolute left-3 top-1/2 -translate-y-1/2"
             />
-          </div>
+          </div> */}
 
           <div className="max-w-[200px]">
             <Select
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
+              value={filters.category}
+              onChange={(e) => hadelchangecategory(e.target.value)}
             >
-              <option value="all">Todas las categorías</option>
+              <option value="all">Todos</option>
+
               {categories.map((cat: Category) => (
                 <option key={cat.id} value={cat.id}>
                   {cat.name}
                 </option>
               ))}
             </Select>
-          </div> */}
+          </div>
 
-          <button className="flex justify-center items-center gap-2 text-sm border border-black/20 rounded-2xl h-11 px-3 ">
+          {/* <button className="flex justify-center items-center gap-2 text-sm border border-black/20 rounded-2xl h-11 px-3 ">
             <IconFilter2 className="size-6 text-black/70" />
             Filtros
-          </button>
+          </button> */}
 
           <button
             className="bg-primary h-11 px-3 flex justify-center items-center gap-2 text-white rounded-2xl text-sm cursor-pointer hover:bg-primary/90"

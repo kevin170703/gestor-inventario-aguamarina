@@ -36,9 +36,9 @@ const ProductTable: React.FC<ProductTableProps> = ({
   };
 
   return (
-    <div className="bg-white overflow-hidden">
-      <div className="overflow-x-auto">
-        <div className="flex justify-between items-center gap-2  text-xs text-gray-500 uppercase bg-black/6 rounded-xl px-4 ">
+    <div className="bg-white overflow-x-auto">
+      <div className="w-full min-w-[800px] ">
+        <div className="flex justify-between items-center gap-2 text-xs text-gray-500 uppercase bg-black/6 rounded-xl px-4 ">
           <div className="w-[25%] clear-start font-medium py-4">Producto</div>
           <div className="w-[15%] clear-start font-medium py-4">Categoría</div>
           <div className="w-[15%] clear-start font-medium py-4">Variantes</div>
@@ -51,7 +51,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
           <div className="w-[15%] clear-start font-medium py-4">Acciones</div>
         </div>
 
-        <div className=" w-full">
+        <div className="w-full">
           {products.map((product) => (
             <div className="bg-white text-black/60 hover:bg-primary/10 flex justify-between items-center py-3 gap-2  border-b border-b-gray-200 text-start text-sm px-4 ">
               <div className="flex justify-start items-center w-[25%]">

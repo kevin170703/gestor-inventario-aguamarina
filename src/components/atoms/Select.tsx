@@ -1,4 +1,5 @@
-import React from "react";
+import { IconChevronDown } from "@tabler/icons-react";
+import React, { useState } from "react";
 
 interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;
@@ -11,8 +12,13 @@ const Select: React.FC<SelectProps> = ({
   className,
   ...props
 }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleClick = () => setIsOpen((prev) => !prev);
+  const handleChange = () => setIsOpen(false);
+
   return (
-    <div>
+    <div className="relative">
       {label && (
         <label
           htmlFor={id}
@@ -21,13 +27,24 @@ const Select: React.FC<SelectProps> = ({
           {label}
         </label>
       )}
-      <select
-        id={id}
-        className={`w-full  px-3 h-12 border border-gray-200 bg-white rounded-xl focus:outline-none focus:ring-teal-500 focus:border-gray-500 sm:text-sm ${className}`}
-        {...props}
-      >
-        {children}
-      </select>
+      <div className="relative">
+        <select
+          id={id}
+          onClick={handleClick}
+          onChange={handleChange}
+          onBlur={handleChange}
+          className={`w-full px-3 pr-10 h-12 border border-gray-200 bg-white rounded-2xl focus:outline-none focus:ring-primary focus:border-primary sm:text-sm appearance-none ${className}`}
+          {...props}
+        >
+          {children}
+        </select>
+        <IconChevronDown
+          className={`absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none transition-transform duration-200 ${
+            isOpen ? "rotate-180" : "rotate-0"
+          }`}
+          size={18}
+        />
+      </div>
     </div>
   );
 };

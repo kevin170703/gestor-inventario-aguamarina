@@ -11,6 +11,7 @@ import {
   IconBasket,
   IconBasketFilled,
   IconShoppingCartFilled,
+  IconX,
 } from "@tabler/icons-react";
 import Link from "next/link";
 
@@ -98,7 +99,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onNavLinkClick }) => {
           </Link>
         </nav>
 
-        <nav className="flex flex-col space-y-3 pt-6 w-full pr-3">
+        {/* <nav className="flex flex-col space-y-3 pt-6 w-full pr-3">
           <h2 className="text-black/40 font-medium pl-2 text-sm">METRICAS</h2>
           <Link
             href="/inventario"
@@ -116,7 +117,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onNavLinkClick }) => {
             )}
             Estadisticas
           </Link>
-        </nav>
+        </nav> */}
       </nav>
 
       <div className="w-full border-t pt-4 border-gray-300">
@@ -142,23 +143,30 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       <div
         className={`fixed inset-y-0 left-0 z-30 transform 
           lg:relative lg:translate-x-0 lg:flex-shrink-0
-          transition-transform duration-300 ease-in-out
+          transition-transform duration-300 ease-in-out w-full
           ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
         <Sidebar onNavLinkClick={closeSidebar} />
       </div>
 
       {/* Backdrop overlay móvil */}
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
-          onClick={closeSidebar}
-          aria-hidden="true"
-        ></div>
-      )}
+
+      <div
+        className={`fixed ${
+          isSidebarOpen ? "top-4 right-4" : "inset-4"
+        }  size-10 p-2 shadow bg-white rounded-full bg-opacity-50 z-100 lg:hidden`}
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        aria-hidden="true"
+      >
+        {isSidebarOpen ? (
+          <IconX className="size-full" />
+        ) : (
+          <IconMenu2 className="size-full" />
+        )}
+      </div>
 
       {/* Contenido principal */}
-      <main className="flex-1 flex flex-col overflow-hidden">
+      <main className="flex-1 flex flex-col overflow-hidden ">
         <div className="flex-1 overflow-y-auto">{children}</div>
       </main>
     </div>

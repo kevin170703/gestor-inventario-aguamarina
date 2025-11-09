@@ -232,17 +232,17 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ cart, setCart }) => {
           </div>
         </div>
 
-        <Button
+        <button
+          className="bg-primary w-full mt-3 h-11 px-3 min-w-[150px] flex justify-center items-center gap-2 text-white rounded-2xl text-sm cursor-pointer hover:bg-primary/90 transition-all disabled:opacity-50"
           onClick={handleProcessSale}
           disabled={cart.length === 0}
-          className="w-full mt-4"
         >
           {createOrder ? (
             <IconLoader2 className="animate-spin" />
           ) : (
             "Realizar Venta"
           )}
-        </Button>
+        </button>
       </div>
     </div>
   );

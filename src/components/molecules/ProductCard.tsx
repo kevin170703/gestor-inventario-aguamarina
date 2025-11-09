@@ -10,7 +10,7 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
   return (
     <div
-      className="bg-white rounded-xl shadow-sm border-6 border-primary/5 overflow-hidden cursor-pointer transition-transform transform hover:scale-105 group"
+      className="bg-white rounded-2xl shadow-sm border-6 border-primary/5 overflow-hidden cursor-pointer transition-transform transform hover:scale-95 group"
       onClick={onClick}
     >
       <div className="relative">
