@@ -37,19 +37,16 @@ const ReceiptView: React.FC = () => {
     // fetchSale();
   }, [saleData, router]);
 
-  if (!sale) return null;
-
-  const subtotal = sale.items.reduce(
+  const subtotal = sale?.items.reduce(
     (acc, item) => acc + item.unitPrice * item.quantity,
     0
   );
-  const totalDiscount = sale.items.reduce(
-    (acc, item) => acc * item.quantity,
-    0
-  );
+
+  console.log(sale, "saleee");
+  if (!sale) return null;
 
   return (
-    <div className="bg-gray-100 min-h-screen p-4 sm:p-8 flex flex-col items-center">
+    <div className="bg-gray-100 min-h-screen p-4 sm:p-8 flex flex-col items-center justify-center max-md:pt-18">
       <div className="w-full max-w-md mx-auto bg-white p-6 shadow-lg printable-area">
         <h1 className="text-center text-2xl font-bold mb-2">Recibo de Venta</h1>
         <p className="text-center text-sm text-gray-500">POS Pro</p>
@@ -79,9 +76,11 @@ const ReceiptView: React.FC = () => {
                   <div className="text-xs text-gray-500">{item.size}</div>
                 </td>
                 <td className="text-center">{item.quantity}</td>
-                <td className="text-right">${item.unitPrice.toFixed(2)}</td>
                 <td className="text-right">
-                  ${(item.unitPrice * item.quantity).toFixed(2)}
+                  ${item.unitPrice.toLocaleString("es-AR")}
+                </td>
+                <td className="text-right">
+                  ${(item.unitPrice * item.quantity).toLocaleString("es-AR")}
                 </td>
               </tr>
             ))}
@@ -93,17 +92,26 @@ const ReceiptView: React.FC = () => {
         <div className="space-y-1 text-sm">
           <div className="flex justify-between">
             <span>Subtotal:</span>
-            <span>${subtotal.toFixed(2)}</span>
+            <span className="">${subtotal?.toLocaleString("es-AR")}</span>
           </div>
-          {totalDiscount > 0 && (
-            <div className="flex justify-between">
-              <span>Descuentos:</span>
-              <span className="text-red-500">-${totalDiscount.toFixed(2)}</span>
-            </div>
-          )}
+
+          <div className="flex justify-between">
+            <span>Descuentos:</span>
+            <span className="">
+              ${sale.totalDiscount.toLocaleString("es-AR")}
+            </span>
+          </div>
+
+          <div className="flex justify-between">
+            <span>Adición:</span>
+            <span className="">
+              ${sale.totalAddition.toLocaleString("es-AR")}
+            </span>
+          </div>
+
           <div className="flex justify-between font-bold text-lg mt-2 pt-2 border-t">
             <span>Total:</span>
-            <span>${sale.total.toFixed(2)}</span>
+            <span>${sale.total.toLocaleString("es-AR")}</span>
           </div>
         </div>
 
@@ -116,9 +124,13 @@ const ReceiptView: React.FC = () => {
         <Link href={"/punto-de-venta"}>Volver al POS</Link>
         {/* <Button variant="secondary" hre icon={<IconArrowLeft size={16}/>}>
             </Button> */}
-        <Button onClick={() => window.print()} icon={<IconPrinter size={16} />}>
+        <button
+          className="bg-primary w-max mt-3 h-11 px-3 min-w-[150px] flex justify-center items-center gap-2 text-white rounded-2xl text-sm cursor-pointer hover:bg-primary/90 transition-all disabled:opacity-50"
+          onClick={() => window.print()}
+        >
+          <IconPrinter size={16} />
           Imprimir
-        </Button>
+        </button>
       </div>
 
       <style jsx global>{`

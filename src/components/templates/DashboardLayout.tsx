@@ -138,23 +138,22 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const closeSidebar = () => setIsSidebarOpen(false);
 
   return (
-    <div className="flex h-screen bg-white">
+    <div className="flex h-screen bg-whitee">
       {/* Sidebar */}
       <div
         className={`fixed inset-y-0 left-0 z-30 transform 
           lg:relative lg:translate-x-0 lg:flex-shrink-0
-          transition-transform duration-300 ease-in-out w-full
+          transition-transform duration-300 ease-in-out max-md:w-full
           ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
         <Sidebar onNavLinkClick={closeSidebar} />
       </div>
 
       {/* Backdrop overlay móvil */}
-
       <div
         className={`fixed ${
           isSidebarOpen ? "top-4 right-4" : "inset-4"
-        }  size-10 p-2 shadow bg-white rounded-full bg-opacity-50 z-100 lg:hidden`}
+        }  size-10 p-2 shadow bg-white rounded-full bg-opacity-50 z-99 lg:hidden`}
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
         aria-hidden="true"
       >
@@ -166,7 +165,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       </div>
 
       {/* Contenido principal */}
-      <main className="flex-1 flex flex-col overflow-hidden ">
+      <main className="flex-1 flex flex-col overflow-hiddenn">
         <div className="flex-1 overflow-y-auto">{children}</div>
       </main>
     </div>

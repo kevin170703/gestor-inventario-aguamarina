@@ -18,9 +18,14 @@ import Image from "next/image";
 interface ShoppingCartProps {
   cart: CartItem[];
   setCart: React.Dispatch<React.SetStateAction<CartItem[]>>;
+  closeCart: () => void;
 }
 
-const ShoppingCart: React.FC<ShoppingCartProps> = ({ cart, setCart }) => {
+const ShoppingCart: React.FC<ShoppingCartProps> = ({
+  cart,
+  setCart,
+  closeCart,
+}) => {
   const router = useRouter();
 
   const [createOrder, setCreateOrder] = useState(false);
@@ -57,6 +62,8 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ cart, setCart }) => {
       items: cart,
       total,
       date: new Date(),
+      totalAddition,
+      totalDiscount,
     };
 
     const formatIdsProducts = cart.map((product) => ({
@@ -68,6 +75,7 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ cart, setCart }) => {
       total,
       items: formatIdsProducts,
       discount: totalDiscount,
+      addition: totalAddition,
     });
 
     if (data.success) {
@@ -87,9 +95,16 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ cart, setCart }) => {
 
   return (
     <div className="bg-white border-l border-gray-200 flex flex-col h-full">
-      <h3 className="text-xl font-semibold flex items-center p-4 border-b border-gray-200">
-        Carrito de Compras
-      </h3>
+      <div className=" flex items-center justify-between p-4 border-b border-gray-200">
+        <h3 className="text-xl font-semibold">Carrito de Compras</h3>
+
+        <button
+          onClick={closeCart}
+          className="text-gray-500 hover:text-gray-800 md:hidden"
+        >
+          <IconX size={24} />
+        </button>
+      </div>
 
       <div className="flex-grow overflow-y-auto p-4 space-y-3 px-4">
         {cart.length === 0 ? (

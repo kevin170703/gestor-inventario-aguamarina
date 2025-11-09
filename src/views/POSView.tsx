@@ -6,6 +6,10 @@ import POSGrid from "../components/organisms/POSGrid";
 import ShoppingCart from "../components/organisms/ShoppingCart";
 import api from "@/lib/axios";
 import ProductSelectionModal from "../components/molecules/VariantSelectionModal";
+import {
+  Cart2BulkRounded,
+  Cart2OutlinedRounded,
+} from "@lineiconshq/react-lineicons";
 
 const POSView: React.FC = () => {
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -35,6 +39,9 @@ const POSView: React.FC = () => {
   const [products, setProducts] = useState<ProductPOS[] | []>([]);
   const [categories, setCategories] = useState<Category[] | []>([]);
   const [sizes, setSizes] = useState<Size[] | []>([]);
+
+  const [viewCart, setViewCart] = useState(false);
+  const closeCart = () => setViewCart(false);
 
   const [page, setPage] = useState(1);
 
@@ -87,8 +94,8 @@ const POSView: React.FC = () => {
   console.log(cart, "carriitoo");
 
   return (
-    <div className="flex gap-6 w-full h-max">
-      <div className="flex flex-col h-full w-[70%] p-6">
+    <div className="flex gap-6 flex-1  h-max ">
+      <div className="flex flex-col h-full w-[70%]  max-md:w-full p-6 max-md:px-4 max-md:pt-16">
         <div className="flex justify-start items-center gap-2 flex-wrap mb-6">
           <button
             onClick={() => setFilters({ ...filters, category: "all" })}
@@ -114,13 +121,30 @@ const POSView: React.FC = () => {
             </button>
           ))}
         </div>
-        <div className="flex-grow overflow-y-auto">
+
+        <div className="flex-grow overflow-y-auto ">
           <POSGrid products={products} onProductClick={handleProductClick} />
         </div>
       </div>
 
-      <div className="h-full fixed right-5 w-[25%]">
-        <ShoppingCart cart={cart} setCart={setCart} />
+      <button
+        onClick={() => setViewCart(true)}
+        className="md:hidden fixed bottom-4 right-4"
+      >
+        <div className="bg-primary text-white rounded-full size-max px-2 absolute -top-2 -left-2 ">
+          <p>{cart.length}</p>
+        </div>
+        <div className="size-12 p-2 rounded-full shadow bg-white">
+          <Cart2OutlinedRounded className="size-full" />
+        </div>
+      </button>
+
+      <div
+        className={`h-full fixed right-5 w-[25%] max-md:right-0 z-100 max-md:w-full transition-transform duration-300 ${
+          viewCart ? "max-md:translate-x-0" : "max-md:translate-x-full"
+        }`}
+      >
+        <ShoppingCart cart={cart} setCart={setCart} closeCart={closeCart} />
       </div>
 
       {selectedProduct && (

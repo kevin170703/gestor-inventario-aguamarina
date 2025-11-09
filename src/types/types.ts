@@ -76,4 +76,6 @@ export interface Sale {
   items: CartItem[];
   total: number;
   date: Date;
+  totalAddition: number;
+  totalDiscount: number;
 }
