@@ -53,7 +53,10 @@ const ProductTable: React.FC<ProductTableProps> = ({
 
         <div className="w-full">
           {products.map((product) => (
-            <div className="bg-white text-black/60 hover:bg-primary/10 flex justify-between items-center py-3 gap-2  border-b border-b-gray-200 text-start text-sm px-4 ">
+            <div
+              key={product.id}
+              className="bg-white text-black/60 hover:bg-primary/10 flex justify-between items-center py-3 gap-2  border-b border-b-gray-200 text-start text-sm px-4 "
+            >
               <div className="flex justify-start items-center w-[25%]">
                 <div className="size-14 rounded-full p-1 border border-gray-200 mr-3 ">
                   <Image

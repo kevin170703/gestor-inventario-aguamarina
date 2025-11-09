@@ -1,26 +1,13 @@
 "use client";
 
 import React, { useState, ReactNode, useEffect } from "react";
-import {
-  IconLayoutDashboard,
-  IconBuildingStore,
-  IconBox,
-  IconMenu2,
-  IconShoppingBag,
-  IconShoppingCart,
-  IconBasket,
-  IconBasketFilled,
-  IconShoppingCartFilled,
-  IconX,
-} from "@tabler/icons-react";
+import { IconMenu2, IconX } from "@tabler/icons-react";
 import Link from "next/link";
 
 import {
   BasketShopping3BulkRounded,
   LabelDollar2BulkRounded,
-  User4BulkRounded,
   ExitOutlinedRounded,
-  BarChart4BulkRounded,
 } from "@lineiconshq/react-lineicons";
 
 import { usePathname } from "next/navigation";

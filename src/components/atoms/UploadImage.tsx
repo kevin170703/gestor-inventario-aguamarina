@@ -1,4 +1,5 @@
 import { IconPhotoPlus, IconX } from "@tabler/icons-react";
+import Image from "next/image";
 import { useState } from "react";
 
 interface UploadedImage {
@@ -44,7 +45,9 @@ export default function UploadImage({ value, onChange, id }: UploadImageProps) {
       >
         {image ? (
           <div className="relative w-full h-full">
-            <img
+            <Image
+              width={700}
+              height={700}
               src={image.preview}
               alt="Preview"
               className="w-full h-full aspect-2/1 rounded-2xl object-cover"

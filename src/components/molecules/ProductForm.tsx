@@ -151,7 +151,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
     const { name, value } = e.target;
     const newVariants = [...(formData.Variants || [])];
     const key = name as keyof Variant;
-    (newVariants[variantIndex] as any)[key] = value;
+    (newVariants[variantIndex] as Record<keyof Variant, unknown>)[key] = value;
     setFormData((prev) => ({ ...prev, Variants: newVariants }));
   };
 

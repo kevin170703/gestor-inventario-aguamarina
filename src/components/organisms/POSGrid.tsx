@@ -1,5 +1,5 @@
 import React from "react";
-import { Product, ProductPOS } from "@/types/types";
+import { ProductPOS } from "@/types/types";
 import ProductCard from "../molecules/ProductCard";
 
 interface POSGridProps {

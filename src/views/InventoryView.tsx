@@ -1,30 +1,19 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import {
-  IconChevronDown,
-  IconChevronLeft,
-  IconChevronRight,
-  IconFilter2,
-  IconPlus,
-  IconSearch,
-} from "@tabler/icons-react";
-import { Product, Category, Size, Variant, Totals } from "@/types/types";
-import Button from "../components/atoms/Button";
-import Input from "../components/atoms/Input";
+import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
+import { Product, Category, Size, Totals } from "@/types/types";
 import Select from "../components/atoms/Select";
 import ProductTable from "../components/organisms/ProductTable";
 import ProductForm from "../components/molecules/ProductForm";
 import api from "@/lib/axios";
-import axios from "axios";
 import { optimizeAndUploadImageWebP } from "@/lib/firebase";
 
 import {
   BasketShopping3OutlinedRounded,
-  User4BulkRounded,
   User4OutlinedRounded,
 } from "@lineiconshq/react-lineicons";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { showToast } from "nextjs-toast-notify";
 
 const InventoryView: React.FC = () => {

@@ -1,16 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { CartItem } from "@/types/types";
-import {
-  IconLoader2,
-  IconMinus,
-  IconPlus,
-  IconShoppingCart,
-  IconTrash,
-  IconX,
-} from "@tabler/icons-react";
-import Button from "../atoms/Button";
+import { IconLoader2, IconMinus, IconPlus, IconX } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import api from "@/lib/axios";
 import Image from "next/image";

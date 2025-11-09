@@ -1,15 +1,12 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Category, Product, ProductPOS, Size, CartItem } from "@/types/types";
+import { Category, ProductPOS, Size, CartItem } from "@/types/types";
 import POSGrid from "../components/organisms/POSGrid";
 import ShoppingCart from "../components/organisms/ShoppingCart";
 import api from "@/lib/axios";
 import ProductSelectionModal from "../components/molecules/VariantSelectionModal";
-import {
-  Cart2BulkRounded,
-  Cart2OutlinedRounded,
-} from "@lineiconshq/react-lineicons";
+import { Cart2OutlinedRounded } from "@lineiconshq/react-lineicons";
 
 const POSView: React.FC = () => {
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -18,14 +15,7 @@ const POSView: React.FC = () => {
     null
   );
 
-  // const filteredProducts =
-  //   activeCategoryId === "all"
-  //     ? products
-  //     : products.filter((p) => p.categoryId === activeCategoryId);
-
   const handleProductClick = (product: ProductPOS) => {
-    // If product has no variants and only one size, add directly to cart? (Future optimization)
-    // For now, always open modal to select size.
     setSelectedProduct(product);
     setIsVariantModalOpen(true);
   };
@@ -90,8 +80,6 @@ const POSView: React.FC = () => {
     getCategories();
     getSizes();
   }, [page, filters]);
-
-  console.log(cart, "carriitoo");
 
   return (
     <div className="flex gap-6 flex-1  h-max ">

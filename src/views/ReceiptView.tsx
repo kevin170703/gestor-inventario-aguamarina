@@ -1,48 +1,39 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
-import Button from "@/components/atoms/Button";
-import { IconPrinter, IconArrowLeft } from "@tabler/icons-react";
+import { IconPrinter } from "@tabler/icons-react";
 import { Sale } from "@/types/types";
 import Link from "next/link";
 
 const ReceiptView: React.FC = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const saleData = sessionStorage.getItem("currentSale"); // ejemplo: /recibo?saleId=123
+  // const searchParams = useSearchParams();
 
   const [sale, setSale] = useState<Sale | null>(null);
 
   useEffect(() => {
+    // ✅ Este código solo se ejecuta en el cliente
+    const saleData = window.sessionStorage.getItem("currentSale");
+
     if (!saleData) {
       router.replace("/punto-de-venta");
       return;
     }
 
-    setSale(JSON.parse(saleData));
-
-    // 🔹 Cargar los datos de la venta (puede venir del backend o de un estado global)
-    // const fetchSale = async () => {
-    //   const res = await fetch(`/api/sales/${saleId}`);
-    //   if (res.ok) {
-    //     const data = await res.json();
-    //     setSale(data);
-    //   } else {
-    //     router.replace("/punto-de-venta");
-    //   }
-    // };
-
-    // fetchSale();
-  }, [saleData, router]);
+    try {
+      setSale(JSON.parse(saleData));
+    } catch {
+      router.replace("/punto-de-venta");
+    }
+  }, [router]);
 
   const subtotal = sale?.items.reduce(
     (acc, item) => acc + item.unitPrice * item.quantity,
     0
   );
 
-  console.log(sale, "saleee");
   if (!sale) return null;
 
   return (
