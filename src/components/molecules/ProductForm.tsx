@@ -276,7 +276,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
           ],
         }));
         setNewSizeName("");
-        setIsAddingCategory(false);
+        setIsAddingSize(false);
       }
     }
   };

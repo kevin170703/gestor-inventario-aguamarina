@@ -11,6 +11,7 @@ import {
 } from "@lineiconshq/react-lineicons";
 
 import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -23,6 +24,8 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ onNavLinkClick }) => {
   const pathname = usePathname();
 
+  const router = useRouter();
+
   const [selectLink, setSelectLink] = useState("");
 
   useEffect(() => {
@@ -32,11 +35,18 @@ const Sidebar: React.FC<SidebarProps> = ({ onNavLinkClick }) => {
     }
   }, [pathname]);
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    router.push("/login");
+  };
+
+  // text-[#10acb9]
+
   return (
     <aside className="min-w-max w-64 text-black flex flex-col justify-between items-start py-6 h-full border-r border-gray-200 bg-gray-100 px-4">
       <div className="flex items-start justify-center gap-3 pl-4 mb-10 flex-col">
         {/* <IconBuildingStore size={32} className="text-teal-400" /> */}
-        <h1 className="text-2xl font-bold ml-2 text-[#10acb9]">Aguamarina</h1>
+        <h1 className="text-2xl font-semibold ml-2 text-primary">Aguamarina</h1>
 
         {/* <div className="border border-gray-300 rounded-xl flex justify-center items-center gap-3 py-3 px-3 mx-2">
           <User4BulkRounded />
@@ -109,7 +119,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onNavLinkClick }) => {
 
       <div className="w-full border-t pt-4 border-gray-300">
         <button
-          onClick={onNavLinkClick}
+          onClick={handleLogout}
           className={`text-black flex justify-start font-medium items-center gap-3 text-sm rounded-xl pl-2 cursor-pointer transition-colors hover:text-red-800`}
         >
           <ExitOutlinedRounded className="size-6" />
@@ -122,34 +132,41 @@ const Sidebar: React.FC<SidebarProps> = ({ onNavLinkClick }) => {
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const pathname = usePathname();
   const closeSidebar = () => setIsSidebarOpen(false);
+
+  const hideSidebar = pathname === "/login";
 
   return (
     <div className="flex h-screen bg-whitee">
       {/* Sidebar */}
-      <div
-        className={`fixed inset-y-0 left-0 z-30 transform 
+      {!hideSidebar && (
+        <div
+          className={`fixed inset-y-0 left-0 z-30 transform 
           lg:relative lg:translate-x-0 lg:flex-shrink-0
           transition-transform duration-300 ease-in-out max-md:w-full
           ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
-      >
-        <Sidebar onNavLinkClick={closeSidebar} />
-      </div>
+        >
+          <Sidebar onNavLinkClick={closeSidebar} />
+        </div>
+      )}
 
       {/* Backdrop overlay móvil */}
-      <div
-        className={`fixed ${
-          isSidebarOpen ? "top-4 right-4" : "inset-4"
-        }  size-10 p-2 shadow bg-white rounded-full bg-opacity-50 z-99 lg:hidden`}
-        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        aria-hidden="true"
-      >
-        {isSidebarOpen ? (
-          <IconX className="size-full" />
-        ) : (
-          <IconMenu2 className="size-full" />
-        )}
-      </div>
+      {!hideSidebar && (
+        <div
+          className={`fixed ${
+            isSidebarOpen ? "top-4 right-4" : "inset-4"
+          }  size-10 p-2 shadow bg-white rounded-full bg-opacity-50 z-99 lg:hidden`}
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          aria-hidden="true"
+        >
+          {isSidebarOpen ? (
+            <IconX className="size-full" />
+          ) : (
+            <IconMenu2 className="size-full" />
+          )}
+        </div>
+      )}
 
       {/* Contenido principal */}
       <main className="flex-1 flex flex-col overflow-hiddenn">
