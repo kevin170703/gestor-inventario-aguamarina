@@ -50,9 +50,9 @@ export default function Login() {
       }
 
       router.push("/dashboard");
-    } catch (err: any) {
-      const message = err?.response?.data?.message || "Error al iniciar sesión";
-      setError("email" as any, { type: "manual", message }); // ejemplo simple
+    } catch (err) {
+      // const message = err?.response?.data?.message || "Error al iniciar sesión";
+      // setError("email" as any, { type: "manual", message }); // ejemplo simple
     }
   };
 

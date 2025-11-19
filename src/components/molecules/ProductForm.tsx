@@ -270,7 +270,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
       if (newSize) {
         setFormData((prev) => ({
           ...prev,
-          sizes: [
+          ProductSizes: [
             ...prev.ProductSizes,
             { name: newSize.name, id: newSize.id, quantity: 0 },
           ],
@@ -288,6 +288,8 @@ const ProductForm: React.FC<ProductFormProps> = ({
     setLoader(false);
     onClose();
   };
+
+  console.log(sizes, "sizes");
 
   if (!isOpen) return null;
 
@@ -466,11 +468,12 @@ const ProductForm: React.FC<ProductFormProps> = ({
                       onChange={handleChangeSize}
                     >
                       <option value="">Seleccionar talle</option>
-                      {sizes.map((size) => (
-                        <option key={size.id} value={size.name}>
-                          {size.name}
-                        </option>
-                      ))}
+                      {sizes &&
+                        sizes.map((size) => (
+                          <option key={size.id} value={size.name}>
+                            {size.name}
+                          </option>
+                        ))}
                     </Select>
                   </div>
                   <Button

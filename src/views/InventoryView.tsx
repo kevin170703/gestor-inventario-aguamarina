@@ -196,7 +196,7 @@ const InventoryView: React.FC = () => {
     const { data } = await api.post(`/size`, { name });
 
     if (data.success) {
-      setSizes(data.size);
+      // setSizes(data.size);
     }
 
     return data.size;
